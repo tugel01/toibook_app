@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:toibook_app/screens/event%20dashboard/overview_page.dart';
-import '../models/toi_event.dart';
+import '../../models/toi_event.dart';
 
 class EventDashboard extends StatefulWidget {
   final ToiEvent event;

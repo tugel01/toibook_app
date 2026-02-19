@@ -8,6 +8,19 @@ class ToiProvider with ChangeNotifier {
   List<ToiEvent> get events => _events;
 
   String? _currentCity;
+  bool _isDarkMode = false;
+  bool get isDarkMode => _isDarkMode;
+
+  void resetOnLogout() {
+    _currentCity = "Select City";       // restore default city. we dont need it actually but let it be
+    notifyListeners();
+  }
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+
   String get currentCity {
     if (_currentCity != null) return _currentCity!;
 

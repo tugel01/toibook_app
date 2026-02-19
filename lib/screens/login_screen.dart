@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toibook_app/screens/home_screen.dart';
+import 'package:toibook_app/screens/main_screen.dart';
 import 'package:toibook_app/screens/registration_screen.dart';
 import 'package:toibook_app/services/auth_service.dart';
 
@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const MainScreen()),
         (route) => false,
       );
     } else {

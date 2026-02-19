@@ -44,7 +44,7 @@ class AuthService {
   ) async {
     await Future.delayed(const Duration(seconds: 1));
     _mockDatabase.add({
-      "id": email,  // for now, wil change later
+      "id": email, // for now, wil change later
       'name': name,
       'email': email,
       'phone': phone,
@@ -53,5 +53,10 @@ class AuthService {
     });
     print("ADDED THS MAN");
     return true;
+  }
+
+  Future<void> logout() async {
+    await Future.delayed(const Duration(milliseconds: 500));    // delay simulation
+    currentUser = null;
   }
 }
