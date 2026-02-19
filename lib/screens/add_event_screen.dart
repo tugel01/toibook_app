@@ -118,7 +118,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
               const SizedBox(height: 24),
 
-              // --- MANDATORY FIELDS ---
+              // mandatory fields
               Text(
                 "Basic Information",
                 style: Theme.of(
@@ -215,7 +215,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
               const SizedBox(height: 40),
 
-              // --- SUBMIT BUTTON ---
+              // submit button
               SizedBox(
                 width: double.infinity,
                 height: 56,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
+import 'package:toibook_app/screens/event_dashboard.dart';
 import 'package:toibook_app/services/auth_service.dart';
 import 'package:toibook_app/widgets/add_event_card.dart';
 import '../widgets/event_card.dart';
@@ -86,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-
                       IconButton(
                         icon: const Icon(Icons.notifications_none_outlined),
                         onPressed: () => print("Notifications tapped"),
@@ -115,12 +115,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSpacing: 16,
                   childAspectRatio: 0.85,
                 ),
-                itemCount: myEvents.length + 1, // Use filtered list
+                itemCount: myEvents.length + 1,
                 itemBuilder: (context, index) {
                   if (index == myEvents.length) {
                     return const AddEventCard();
                   }
-                  return EventCard(event: myEvents[index]); // Use filtered list
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  EventDashboard(event: myEvents[index]),
+                        ),
+                      );
+                    },
+                    child: EventCard(event: myEvents[index]),
+                  );
                 },
               ),
             ],
