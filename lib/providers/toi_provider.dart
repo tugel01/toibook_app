@@ -1,0 +1,18 @@
+import 'package:flutter/material.dart';
+import '../models/toi_event.dart';
+
+class ToiProvider with ChangeNotifier {
+  final List<ToiEvent> _events = ToiEvent.mockEvents;
+
+  List<ToiEvent> get events => _events;
+
+  List<ToiEvent> getEventsByUserId(String userId) {
+    return _events.where((e) => e.userId == userId).toList();
+  }
+
+  void addEvent(ToiEvent newEvent) {
+    _events.add(newEvent);
+    
+    notifyListeners(); 
+  }
+}
