@@ -1,6 +1,6 @@
 class ToiEvent {
   final String id;
-  final String userId; // Link to the owner
+  final String userId;
   final String title;
   final String type;
   final DateTime date;
@@ -32,7 +32,7 @@ class ToiEvent {
     ),
     ToiEvent(
       id: 'e2',
-      userId: 'u-user123', // Belongs to someone else
+      userId: 'u-user123',
       title: 'Sanzhar Birthday',
       type: 'Birthday',
       date: DateTime(2026, 12, 10),

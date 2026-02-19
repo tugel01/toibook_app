@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = AuthService.currentUser;
     final toiProvider = Provider.of<ToiProvider>(context);
     final myEvents = toiProvider.getEventsByUserId(user?.id ?? "");
+    final currentCity = Provider.of<ToiProvider>(context).currentCity;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -73,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ).textTheme.labelSmall,
                                     ),
                                     Text(
-                                      user?.city ?? "Choose your city",
+                                      currentCity,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium?.copyWith(
@@ -175,8 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisSize:
-                MainAxisSize.min, // Takes only as much space as needed
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 40,
@@ -194,15 +194,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              // Generate a list of cities
               ...cities
                   .map(
                     (city) => ListTile(
                       leading: const Icon(Icons.location_city),
                       title: Text(city),
                       onTap: () {
-                        // For now, we just print. Later we update the user model!
-                        print("Selected $city");
+                        Provider.of<ToiProvider>(
+                          context,
+                          listen: false,
+                        ).updateCity(city);
                         Navigator.pop(context);
                       },
                     ),

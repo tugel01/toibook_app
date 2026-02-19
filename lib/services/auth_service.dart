@@ -1,7 +1,7 @@
 import 'package:toibook_app/models/user_model.dart';
 
 class AuthService {
-  static UserModel? currentUser; 
+  static UserModel? currentUser;
 
   static final List<Map<String, String>> _mockDatabase = [
     {
@@ -20,7 +20,6 @@ class AuthService {
       final userRecord = _mockDatabase.firstWhere(
         (user) => user['email'] == email && user['password'] == password,
       );
-      
 
       currentUser = UserModel(
         id: userRecord['id']!,
@@ -29,18 +28,30 @@ class AuthService {
         phoneNumber: userRecord['phone']!,
         city: userRecord['city']!,
       );
-      
+
       return currentUser;
     } catch (e) {
       return null;
     }
   }
 
-  Future<bool> register(String name, String email, String phone, String password, String city) async {
+  Future<bool> register(
+    String name,
+    String email,
+    String phone,
+    String password,
+    String city,
+  ) async {
     await Future.delayed(const Duration(seconds: 1));
     _mockDatabase.add({
-      'name': name, 'email': email, 'phone': phone, 'password': password, 'city': city
+      "id": email,  // for now, wil change later
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'password': password,
+      'city': city,
     });
+    print("ADDED THS MAN");
     return true;
   }
 }

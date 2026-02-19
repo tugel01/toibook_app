@@ -14,12 +14,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _isLoading = false; // To track loading state
+  bool _isLoading = false; 
 
   void _handleLogin() async {
     setState(() => _isLoading = true);
 
-    // Call our mock service
+    // Call mock service
     final user = await AuthService().login(
       _emailController.text,
       _passwordController.text,
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed:
                     _isLoading
                         ? null
-                        : _handleLogin, // Disable button while loading
+                        : _handleLogin,
                 child:
                     _isLoading
                         ? const SizedBox(
@@ -102,7 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
 
-            // At the bottom of the Column in login_screen.dart
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

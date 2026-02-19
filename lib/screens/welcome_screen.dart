@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:toibook_app/screens/registration_screen.dart';
-import 'login_screen.dart'; // We will create this later
+import 'login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -45,7 +45,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
 
               const Spacer(),
-              // The "Get Started" Button
+              // button
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -64,7 +64,7 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // The "Sign In" Hyperlink
+              // sign in link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
