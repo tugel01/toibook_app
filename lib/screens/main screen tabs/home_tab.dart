@@ -171,7 +171,7 @@ class HomeTab extends StatelessWidget {
                     Navigator.pop(context);
                   },
                 ),
-              ).toList(),
+              ),
             ],
           ),
         );
