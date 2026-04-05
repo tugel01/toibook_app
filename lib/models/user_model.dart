@@ -1,9 +1,9 @@
 class UserModel {
   final String id;
-  final String fullName;
+  String fullName;
   final String email;
   final String phoneNumber;
-  final String city;
+  String city;
   final String? profileImageUrl;
 
   UserModel({

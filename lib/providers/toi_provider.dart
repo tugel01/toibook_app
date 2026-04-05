@@ -30,7 +30,19 @@ class ToiProvider with ChangeNotifier {
 
   void updateCity(String newCity) {
     _currentCity = newCity;
+    final user = AuthService.currentUser;
+    if (user != null) {
+      user.city = newCity; 
+    }
     notifyListeners();
+  }
+
+  void updateUserName(String newName) {
+    final user = AuthService.currentUser;
+    if (user != null) {
+      user.fullName = newName;
+      notifyListeners();
+    }
   }
 
   List<ToiEvent> getEventsByUserId(String userId) {

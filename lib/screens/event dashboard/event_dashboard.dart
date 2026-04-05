@@ -13,17 +13,36 @@ class EventDashboard extends StatefulWidget {
 
 class _EventDashboardState extends State<EventDashboard> {
   int _currentIndex = 0;
-
+  late PageController _pageController;
   late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+    
     _pages = [
       OverviewPage(event: widget.event),
       const Center(child: Text("Saved Items / Vendors")),
       const Center(child: Text("Chat with Vendors")),
     ];
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -39,12 +58,21 @@ class _EventDashboardState extends State<EventDashboard> {
           ),
         ],
       ),
-      body: _pages[_currentIndex],
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(), // Отключаем свайпы
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: _onTabTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
           BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Saved"),

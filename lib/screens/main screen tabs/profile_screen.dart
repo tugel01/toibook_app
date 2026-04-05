@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toibook_app/screens/login_screen.dart';
+import 'package:toibook_app/widgets/change_name_dialog.dart';
+import 'package:toibook_app/widgets/city_picker.dart';
 import '../../providers/toi_provider.dart';
 import '../../services/auth_service.dart';
 
@@ -46,12 +48,15 @@ class ProfileScreen extends StatelessWidget {
               Icons.person_outline,
               "Full name",
               user?.fullName ?? "",
+              () => ChangeNameDialog.show(context),
+              
             ),
             _buildListTile(
               context,
               Icons.location_city_outlined,
               "City",
               toiProvider.currentCity,
+              (() =>  CityPicker.show(context)),
             ),
 
             _buildSectionHeader(context, "Preferences"),
@@ -112,15 +117,14 @@ class ProfileScreen extends StatelessWidget {
     IconData icon,
     String title,
     String subtitle,
+    VoidCallback? onTap,
   ) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.chevron_right, size: 16),
-      onTap: () {
-        /* Future feature: Edit Info */
-      },
+      onTap: onTap,
     );
   }
 
