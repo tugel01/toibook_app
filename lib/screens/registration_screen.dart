@@ -11,27 +11,26 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
+  final _surnameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _cityController = TextEditingController();
 
   bool _isLoading = false;
-
   final _formKey = GlobalKey<FormState>();
 
   void _handleRegister() async {
     setState(() => _isLoading = true);
 
     final success = await AuthService().register(
-      _nameController.text,
-      _emailController.text,
-      _phoneController.text,
+      _nameController.text.trim(),
+      _surnameController.text.trim(),
+      _emailController.text.trim(),
       _passwordController.text,
-      _cityController.text,
     );
 
     setState(() => _isLoading = false);
+
+    if (!mounted) return;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -43,7 +42,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         MaterialPageRoute(builder: (context) => const LoginScreen()),
         (route) => false,
       );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Registration failed")),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _surnameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -59,58 +71,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Name
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: "Full Name"),
-                validator: (value) => value!.isEmpty ? "Enter your name" : null,
+                decoration: const InputDecoration(labelText: "Name"),
+                validator: (value) =>
+                    value == null || value.trim().isEmpty ? "Enter your name" : null,
               ),
               const SizedBox(height: 16),
 
-              // phone
+              // Surname
               TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: "Phone Number",
-                  hintText: "+7 707...",
-                ),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Enter phone number";
-                  }
-
-                  final phoneRegExp = RegExp(r'^(\+?7|8)[0-9]{10}$');
-
-                  //remove any spaces or dashes
-                  String cleanValue = value.replaceAll(
-                    RegExp(r'[\s\-\(\)]'),
-                    '',
-                  );
-
-                  if (!phoneRegExp.hasMatch(cleanValue)) {
-                    return "Use format: +7... or 8...";
-                  }
-                  return null;
-                },
+                controller: _surnameController,
+                decoration: const InputDecoration(labelText: "Surname"),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? "Enter your surname"
+                    : null,
               ),
               const SizedBox(height: 16),
 
-              TextFormField(
-                controller: _cityController,
-                decoration: const InputDecoration(labelText: "City"),
-              ),
-
-              const SizedBox(height: 16),
-
-              // email
+              // Email
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: "Email"),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   final emailRegExp = RegExp(
-                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,4}$',
                   );
-                  if (value == null || value.isEmpty) return "Enter email";
-                  if (!emailRegExp.hasMatch(value)) {
+
+                  if (value == null || value.trim().isEmpty) {
+                    return "Enter email";
+                  }
+                  if (!emailRegExp.hasMatch(value.trim())) {
                     return "Enter a valid email address";
                   }
                   return null;
@@ -118,7 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16),
 
-              // password
+              // Password
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: "Password"),
@@ -137,25 +127,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               const SizedBox(height: 32),
 
-              // button
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // check validators
                     if (_formKey.currentState!.validate()) {
                       _handleRegister();
                     }
                   },
-                  child:
-                      _isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text("Register"),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text("Register"),
                 ),
               ),
 
               const SizedBox(height: 16),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

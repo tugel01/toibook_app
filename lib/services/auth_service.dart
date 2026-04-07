@@ -8,25 +8,30 @@ class AuthService {
       'id': 'u-admin',
       'email': 'admin@toibook.kz',
       'password': '123',
-      'name': 'Alibi Admin',
-      'phone': '+7 777 000 11 22',
-      'city': 'Almaty',
+      'name': 'Alibi',
+      'surname': 'Admin',
+      'city': 'Almaty', // kept because current login/user model still expects it
+      'phone': '',      // kept because current login/user model still expects it
     },
   ];
 
   Future<UserModel?> login(String email, String password) async {
     await Future.delayed(const Duration(seconds: 1));
+
     try {
       final userRecord = _mockDatabase.firstWhere(
         (user) => user['email'] == email && user['password'] == password,
       );
 
+      final fullName =
+          '${userRecord['name'] ?? ''} ${userRecord['surname'] ?? ''}'.trim();
+
       currentUser = UserModel(
         id: userRecord['id']!,
-        fullName: userRecord['name']!,
+        fullName: fullName,
         email: userRecord['email']!,
-        phoneNumber: userRecord['phone']!,
-        city: userRecord['city']!,
+        phoneNumber: userRecord['phone'] ?? '',
+        city: userRecord['city'] ?? '',
       );
 
       return currentUser;
@@ -37,26 +42,30 @@ class AuthService {
 
   Future<bool> register(
     String name,
+    String surname,
     String email,
-    String phone,
     String password,
-    String city,
   ) async {
     await Future.delayed(const Duration(seconds: 1));
+
     _mockDatabase.add({
-      "id": email, // for now, wil change later
+      'id': email, // temporary
       'name': name,
+      'surname': surname,
       'email': email,
-      'phone': phone,
       'password': password,
-      'city': city,
+      'phone': '',
+      'city': '',
     });
-    print("ADDED THS MAN");
+
+    print('ADDED USER: $name $surname, $email');
+    print(_mockDatabase);
+
     return true;
   }
 
   Future<void> logout() async {
-    await Future.delayed(const Duration(milliseconds: 500));    // delay simulation
+    await Future.delayed(const Duration(milliseconds: 500));
     currentUser = null;
   }
 }
