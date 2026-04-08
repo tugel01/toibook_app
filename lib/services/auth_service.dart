@@ -10,8 +10,8 @@ class AuthService {
       'password': '123',
       'name': 'Alibi',
       'surname': 'Admin',
-      'city': 'Almaty', // kept because current login/user model still expects it
-      'phone': '',      // kept because current login/user model still expects it
+      'city': 'Almaty',
+      'phone': '',
     },
   ];
 
@@ -23,18 +23,9 @@ class AuthService {
         (user) => user['email'] == email && user['password'] == password,
       );
 
-      final fullName =
-          '${userRecord['name'] ?? ''} ${userRecord['surname'] ?? ''}'.trim();
-
-      currentUser = UserModel(
-        id: userRecord['id']!,
-        fullName: fullName,
-        email: userRecord['email']!,
-        phoneNumber: userRecord['phone'] ?? '',
-        city: userRecord['city'] ?? '',
-      );
-
+      currentUser = _mapToUserModel(userRecord);
       return currentUser;
+
     } catch (e) {
       return null;
     }
@@ -48,20 +39,36 @@ class AuthService {
   ) async {
     await Future.delayed(const Duration(seconds: 1));
 
-    _mockDatabase.add({
-      'id': email, // temporary
+    final alreadyExists = _mockDatabase.any((u) => u['email'] == email);
+    if (alreadyExists) return false;
+
+    final newUserMap = {
+      'id': 'u-${DateTime.now().millisecondsSinceEpoch}', // temporary id
       'name': name,
       'surname': surname,
       'email': email,
       'password': password,
       'phone': '',
       'city': '',
-    });
+    };
+
+    _mockDatabase.add(newUserMap);
 
     print('ADDED USER: $name $surname, $email');
     print(_mockDatabase);
 
     return true;
+  }
+
+  // helper to convert map to user model, since we are using maps as mock database records
+  UserModel _mapToUserModel(Map<String, String> map) {
+    return UserModel(
+      id: map['id']!,
+      fullName: '${map['name'] ?? ''} ${map['surname'] ?? ''}'.trim(),
+      email: map['email']!,
+      phoneNumber: map['phone'] ?? '',
+      city: map['city'] ?? '',
+    );
   }
 
   Future<void> logout() async {
