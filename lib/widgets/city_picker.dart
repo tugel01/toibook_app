@@ -6,14 +6,6 @@ class CityPicker extends StatelessWidget {
   const CityPicker({super.key});
 
   static void show(BuildContext context) {
-    final List<String> cities = [
-      "Almaty",
-      "Astana",
-      "Shymkent",
-      "Aktau",
-      "Kostanay"
-    ];
-
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -40,7 +32,6 @@ class CityPicker extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Полоска сверху для красоты
           Container(
             width: 40,
             height: 4,
@@ -63,7 +54,6 @@ class CityPicker extends StatelessWidget {
               leading: const Icon(Icons.location_city),
               title: Text(city),
               onTap: () {
-                // Обновляем город через провайдер
                 Provider.of<ToiProvider>(context, listen: false).updateCity(city);
                 Navigator.pop(context);
               },
