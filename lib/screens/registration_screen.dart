@@ -14,6 +14,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _surnameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
@@ -55,6 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _surnameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -125,7 +127,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
               ),
 
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: _confirmPasswordController,
+                decoration: const InputDecoration(labelText: "Confirm Password"),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please confirm your password";
+                  }
+                  if (value != _passwordController.text) {
+                    return "Passwords do not match";
+                  }
+                  return null;
+                },
+              ),
+
               const SizedBox(height: 32),
+
 
               SizedBox(
                 width: double.infinity,
