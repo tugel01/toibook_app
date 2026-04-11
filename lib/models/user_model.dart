@@ -14,13 +14,4 @@ class UserModel {
     required this.city,
     this.profileImageUrl,
   });
-
-  // Mock data for testing your UI
-  static UserModel mockUser = UserModel(
-    id: 'u-001',
-    fullName: 'Alisher Kanatov',
-    email: 'alisher@toibook.kz',
-    phoneNumber: '+7 707 123 45 67', 
-    city: 'Astana',
-  );
 }

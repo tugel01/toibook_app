@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toibook_app/screens/login_screen.dart';
+import 'package:toibook_app/services/auth_service.dart';
 import 'package:toibook_app/widgets/change_name_dialog.dart';
 import 'package:toibook_app/widgets/city_picker.dart';
 import '../../providers/toi_provider.dart';
-import '../../services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

@@ -22,6 +22,16 @@ class _AddEventScreenState extends State<AddEventScreen> {
   final _guestController = TextEditingController();
   final _budgetController = TextEditingController();
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _locationController.dispose();
+    _guestController.dispose();
+    _budgetController.dispose();
+    super.dispose();
+  }
+  
+
   String? _selectedType;
   DateTime? _selectedDate;
 

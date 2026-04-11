@@ -1,78 +1,94 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:toibook_app/models/user_model.dart';
 
 class AuthService {
-  static UserModel? currentUser;
+  final _baseUrl = 'https://toibook.up.railway.app/api/auth';
+  final _storage = const FlutterSecureStorage();
 
-  static final List<Map<String, String>> _mockDatabase = [
-    {
-      'id': 'u-admin',
-      'email': 'admin@toibook.kz',
-      'password': '123',
-      'name': 'Alibi',
-      'surname': 'Admin',
-      'city': 'Almaty',
-      'phone': '',
-    },
-  ];
 
-  Future<UserModel?> login(String email, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
+  // Mock data for now, add actual user fetching logic later
+  static UserModel currentUser = UserModel(
+    id: 'u-001',
+    fullName: 'Alisher Kanatov',
+    email: 'alisher@toibook.kz',
+    phoneNumber: '+7 707 123 45 67', 
+    city: 'Astana',
+  );
 
+
+  Future<bool> register(String name, String surname, String email, String password) async {
     try {
-      final userRecord = _mockDatabase.firstWhere(
-        (user) => user['email'] == email && user['password'] == password,
+      final res = await http.post(
+        Uri.parse('$_baseUrl/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': name,
+          'surname': surname,
+          'email': email,
+          'password': password,
+        }),
       );
 
-      currentUser = _mapToUserModel(userRecord);
-      return currentUser;
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      throw Exception('Network error. Check your connection.');
+    }
+  }
 
+  Future<bool> login(String email, String password) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$_baseUrl/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (res.statusCode == 200) {
+        final token = jsonDecode(res.body)['token'] as String;
+        await _storage.write(key: 'jwt', value: token);
+        return true;
+      }
+      return false; // wrong credentials
+    } catch (e) {
+      throw Exception('Network error. Check your connection.');
+    }
+  }
+
+  Future<String?> getToken() => _storage.read(key: 'jwt');
+
+  Future<void> logout() => _storage.delete(key: 'jwt');
+
+
+  
+  // also may delete
+  Map<String, dynamic>? decodeToken(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      String normalized = base64Url.normalize(parts[1]);
+      final payload = utf8.decode(base64Url.decode(normalized));
+      return jsonDecode(payload);
     } catch (e) {
       return null;
     }
   }
 
-  Future<bool> register(
-    String name,
-    String surname,
-    String email,
-    String password,
-  ) async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    final alreadyExists = _mockDatabase.any((u) => u['email'] == email);
-    if (alreadyExists) return false;
-
-    final newUserMap = {
-      'id': 'u-${DateTime.now().millisecondsSinceEpoch}', // temporary id
-      'name': name,
-      'surname': surname,
-      'email': email,
-      'password': password,
-      'phone': '',
-      'city': '',
-    };
-
-    _mockDatabase.add(newUserMap);
-
-    print('ADDED USER: $name $surname, $email');
-    print(_mockDatabase);
-
-    return true;
+  // here we can only get email. May delete later
+  Future<Map<String, dynamic>?> getCurrentUser() async {
+    final token = await _storage.read(key: 'jwt');
+    if (token == null) return null;
+    return decodeToken(token);
   }
 
-  // helper to convert map to user model, since we are using maps as mock database records
-  UserModel _mapToUserModel(Map<String, String> map) {
-    return UserModel(
-      id: map['id']!,
-      fullName: '${map['name'] ?? ''} ${map['surname'] ?? ''}'.trim(),
-      email: map['email']!,
-      phoneNumber: map['phone'] ?? '',
-      city: map['city'] ?? '',
-    );
-  }
-
-  Future<void> logout() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    currentUser = null;
+  // may delete as well
+  Future<bool> isLoggedIn() async {
+    final token = await _storage.read(key: 'jwt');
+    return token != null;
   }
 }

@@ -24,18 +24,19 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
   
-  void _handleLogin() async {
-    setState(() => _isLoading = true);
+void _handleLogin() async {
+  setState(() => _isLoading = true);
 
-    // Call mock service
-    final user = await AuthService().login(
-      _emailController.text,
+  try {
+    final success = await AuthService().login(
+      _emailController.text.trim(),
       _passwordController.text,
     );
 
+    if (!mounted) return;
     setState(() => _isLoading = false);
 
-    if (user != null) {
+    if (success) {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -46,7 +47,14 @@ class _LoginScreenState extends State<LoginScreen> {
         const SnackBar(content: Text("Invalid email or password")),
       );
     }
+  } catch (e) {
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Something went wrong: ${e.toString()}")),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Welcome Back!",
+                "Welcome!",
                 style: Theme.of(
                   context,
                 ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),

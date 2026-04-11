@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:toibook_app/screens/login_screen.dart';
-import '../services/auth_service.dart';
+import 'package:toibook_app/services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -22,30 +22,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _handleRegister() async {
     setState(() => _isLoading = true);
 
-    final success = await AuthService().register(
-      _nameController.text.trim(),
-      _surnameController.text.trim(),
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Registration successful! Please login.")),
+    try {
+      final success = await AuthService().register(
+        _nameController.text.trim(),
+        _surnameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text,
       );
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (route) => false,
-      );
-    } else {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Registration successful! Please login.")),
+        );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Registration failed. Email may already be in use.")),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Registration failed")),
+        SnackBar(content: Text("Something went wrong: ${e.toString()}")),
       );
     }
   }
