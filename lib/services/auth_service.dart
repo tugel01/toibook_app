@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:toibook_app/models/event_date_dto.dart';
-import 'package:toibook_app/models/event_card_response.dart';
-import 'package:toibook_app/models/toi_event.dart';
 import 'package:toibook_app/models/user_model.dart';
 
 class AuthService {
@@ -94,66 +91,5 @@ class AuthService {
   Future<bool> isLoggedIn() async {
     final token = await _storage.read(key: 'jwt');
     return token != null;
-  }
-
-Future<List<EventCardResponse>> getEventCards() async {
-  try {
-    final token = await _storage.read(key: 'jwt');
-
-    final res = await http.get(
-      Uri.parse('$_baseUrl/events'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-
-    if (res.statusCode == 200) {
-      final List<dynamic> body = jsonDecode(res.body);
-      return body.map((e) => EventCardResponse.fromJson(e)).toList();
-    }
-
-    if (res.statusCode == 404) return [];
-
-    throw Exception('Failed to load events: ${res.statusCode}');
-  } catch (e) {
-    throw Exception('Network error: $e');
-  }
-}
-
-  Future<void> createEvent({
-    required String name,
-    required String description,
-    required DateSelectionMode dateMode,
-    required List<EventDateDto> dates,
-    required int guestCount,
-    required double budget,
-    String? coverImageUrl,
-  }) async {
-    final token = await _storage.read(key: 'jwt');
-
-    final body = {
-      'name': name,
-      'description': description,
-      'dateType': dateMode.toBackendString(),
-      'dates': dates.map((d) => d.toJson()).toList(),
-      'guestCount': guestCount,
-      'budget': budget.toInt(),
-      if (coverImageUrl != null) 'coverImageUrl': coverImageUrl,
-    };
-
-    final res = await http.post(
-      Uri.parse('$_baseUrl/events'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(body),
-    );
-
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception('Failed to create event: ${res.statusCode}');
-    }
   }
 }

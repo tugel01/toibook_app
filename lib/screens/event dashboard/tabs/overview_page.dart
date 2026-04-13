@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toibook_app/models/toi_event.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
-import 'package:toibook_app/widgets/overview/overview_budget_widget.dart';
+import 'package:toibook_app/widgets/overview/budget/overview_budget_widget.dart';
 import 'package:toibook_app/widgets/overview/overview_countdown_card.dart';
 import 'package:toibook_app/widgets/overview/overview_info_card.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toibook_app/screens/main_screen.dart';
+import 'package:toibook_app/screens/main%20screen/main_screen.dart';
 import 'package:toibook_app/screens/registration_screen.dart';
 import 'package:toibook_app/services/auth_service.dart';
 

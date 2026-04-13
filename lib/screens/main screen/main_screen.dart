@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:toibook_app/screens/main%20screen%20tabs/home_tab.dart';
-import 'package:toibook_app/screens/main%20screen%20tabs/profile_screen.dart';
+import 'package:toibook_app/screens/main%20screen/tabs/home_tab.dart';
+import 'package:toibook_app/screens/main%20screen/tabs/profile_tab.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toibook_app/models/event_date_dto.dart';
 import 'package:toibook_app/models/toi_event.dart';
-import 'package:toibook_app/services/auth_service.dart';
+import 'package:toibook_app/providers/toi_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddEventScreen extends StatefulWidget {
   const AddEventScreen({super.key});
@@ -49,7 +50,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
       source: ImageSource.gallery,
       imageQuality: 80,
     );
-    if (pickedFile != null) setState(() => _selectedImage = File(pickedFile.path));
+    if (pickedFile != null)
+      setState(() => _selectedImage = File(pickedFile.path));
   }
 
   Future<void> _pickSingleDate() async {
@@ -82,10 +84,10 @@ class _AddEventScreenState extends State<AddEventScreen> {
   Future<void> _pickRangeEnd() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _rangeStart?.add(const Duration(days: 1)) ??
+      initialDate:
+          _rangeStart?.add(const Duration(days: 1)) ??
           DateTime.now().add(const Duration(days: 31)),
-      firstDate:
-          _rangeStart?.add(const Duration(days: 1)) ?? DateTime.now(),
+      firstDate: _rangeStart?.add(const Duration(days: 1)) ?? DateTime.now(),
       lastDate: DateTime(2100),
     );
     if (picked != null) setState(() => _rangeEnd = picked);
@@ -114,108 +116,130 @@ class _AddEventScreenState extends State<AddEventScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text('Add Date Range',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-              InkWell(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate:
-                        DateTime.now().add(const Duration(days: 30)),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) setModalState(() => start = picked);
-                },
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Start Date',
-                    prefixIcon: Icon(Icons.calendar_today),
-                  ),
-                  child: Text(start == null
-                      ? 'Tap to select'
-                      : _formatDate(start!)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              InkWell(
-                onTap: start == null
-                    ? null
-                    : () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate:
-                              start!.add(const Duration(days: 1)),
-                          firstDate: start!.add(const Duration(days: 1)),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          setModalState(() => end = picked);
-                        }
-                      },
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'End Date',
-                    prefixIcon: const Icon(Icons.calendar_today_outlined),
-                    enabled: start != null,
-                  ),
-                  child: Text(end == null
-                      ? start == null
-                          ? 'Select start date first'
-                          : 'Tap to select'
-                      : _formatDate(end!)),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: start != null && end != null
-                      ? () {
-                          setState(() {
-                            _multipleDates.add((start: start!, end: end!));
-                            _multipleDates
-                                .sort((a, b) => a.start.compareTo(b.start));
-                          });
-                          Navigator.pop(ctx);
-                        }
-                      : null,
-                  child: const Text('Add Range'),
-                ),
-              ),
-            ],
-          ),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
+      builder:
+          (ctx) => StatefulBuilder(
+            builder:
+                (ctx, setModalState) => Padding(
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 24,
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Add Date Range',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now().add(
+                              const Duration(days: 30),
+                            ),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setModalState(() => start = picked);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Start Date',
+                            prefixIcon: Icon(Icons.calendar_today),
+                          ),
+                          child: Text(
+                            start == null
+                                ? 'Tap to select'
+                                : _formatDate(start!),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      InkWell(
+                        onTap:
+                            start == null
+                                ? null
+                                : () async {
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: start!.add(
+                                      const Duration(days: 1),
+                                    ),
+                                    firstDate: start!.add(
+                                      const Duration(days: 1),
+                                    ),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (picked != null) {
+                                    setModalState(() => end = picked);
+                                  }
+                                },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'End Date',
+                            prefixIcon: const Icon(
+                              Icons.calendar_today_outlined,
+                            ),
+                            enabled: start != null,
+                          ),
+                          child: Text(
+                            end == null
+                                ? start == null
+                                    ? 'Select start date first'
+                                    : 'Tap to select'
+                                : _formatDate(end!),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: FilledButton(
+                          onPressed:
+                              start != null && end != null
+                                  ? () {
+                                    setState(() {
+                                      _multipleDates.add((
+                                        start: start!,
+                                        end: end!,
+                                      ));
+                                      _multipleDates.sort(
+                                        (a, b) => a.start.compareTo(b.start),
+                                      );
+                                    });
+                                    Navigator.pop(ctx);
+                                  }
+                                  : null,
+                          child: const Text('Add Range'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+          ),
     );
   }
 
@@ -243,8 +267,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
     }
   }
 
-  String _formatDate(DateTime d) =>
-      '${d.day}.${d.month}.${d.year}';
+  String _formatDate(DateTime d) => '${d.day}.${d.month}.${d.year}';
 
   String _formatEntry(({DateTime start, DateTime end}) entry) {
     if (entry.start == entry.end) return _formatDate(entry.start);
@@ -269,39 +292,41 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   height: 180,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withValues(alpha: 0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.5),
                     ),
-                    image: _selectedImage != null
-                        ? DecorationImage(
-                            image: FileImage(_selectedImage!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+                    image:
+                        _selectedImage != null
+                            ? DecorationImage(
+                              image: FileImage(_selectedImage!),
+                              fit: BoxFit.cover,
+                            )
+                            : null,
                   ),
-                  child: _selectedImage == null
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_a_photo_outlined,
+                  child:
+                      _selectedImage == null
+                          ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_a_photo_outlined,
                                 size: 40,
-                                color:
-                                    Theme.of(context).colorScheme.primary),
-                            const SizedBox(height: 8),
-                            const Text('Upload Event Cover (optional)',
-                                style:
-                                    TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        )
-                      : null,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Upload Event Cover (optional)',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          )
+                          : null,
                 ),
               ),
               const SizedBox(height: 24),
@@ -309,11 +334,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
               // Name
               TextFormField(
                 controller: _nameController,
-                decoration:
-                    const InputDecoration(labelText: 'Event Name *'),
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? 'Please name your event'
-                    : null,
+                decoration: const InputDecoration(labelText: 'Event Name *'),
+                validator:
+                    (val) =>
+                        val == null || val.trim().isEmpty
+                            ? 'Please name your event'
+                            : null,
               ),
               const SizedBox(height: 16),
 
@@ -325,40 +351,47 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? 'Please add a description'
-                    : null,
+                validator:
+                    (val) =>
+                        val == null || val.trim().isEmpty
+                            ? 'Please add a description'
+                            : null,
               ),
               const SizedBox(height: 24),
 
               // Date section
-              Text('Event Date *',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                'Event Date *',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
 
               SegmentedButton<DateSelectionMode>(
                 segments: const [
                   ButtonSegment(
-                      value: DateSelectionMode.singleDate,
-                      label: Text('Single')),
+                    value: DateSelectionMode.singleDate,
+                    label: Text('Single'),
+                  ),
                   ButtonSegment(
-                      value: DateSelectionMode.dateRange,
-                      label: Text('Range')),
+                    value: DateSelectionMode.dateRange,
+                    label: Text('Range'),
+                  ),
                   ButtonSegment(
-                      value: DateSelectionMode.multipleDates,
-                      label: Text('Multiple')),
+                    value: DateSelectionMode.multipleDates,
+                    label: Text('Multiple'),
+                  ),
                 ],
                 selected: {_dateMode},
-                onSelectionChanged: (val) => setState(() {
-                  _dateMode = val.first;
-                  _singleDate = null;
-                  _rangeStart = null;
-                  _rangeEnd = null;
-                  _multipleDates.clear();
-                }),
+                onSelectionChanged:
+                    (val) => setState(() {
+                      _dateMode = val.first;
+                      _singleDate = null;
+                      _rangeStart = null;
+                      _rangeEnd = null;
+                      _multipleDates.clear();
+                    }),
               ),
               const SizedBox(height: 16),
 
@@ -371,9 +404,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       labelText: 'Select Date',
                       prefixIcon: Icon(Icons.calendar_today),
                     ),
-                    child: Text(_singleDate == null
-                        ? 'Tap to select'
-                        : _formatDate(_singleDate!)),
+                    child: Text(
+                      _singleDate == null
+                          ? 'Tap to select'
+                          : _formatDate(_singleDate!),
+                    ),
                   ),
                 ),
 
@@ -386,9 +421,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       labelText: 'Start Date',
                       prefixIcon: Icon(Icons.calendar_today),
                     ),
-                    child: Text(_rangeStart == null
-                        ? 'Tap to select'
-                        : _formatDate(_rangeStart!)),
+                    child: Text(
+                      _rangeStart == null
+                          ? 'Tap to select'
+                          : _formatDate(_rangeStart!),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -399,9 +436,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       labelText: 'End Date',
                       prefixIcon: Icon(Icons.calendar_today_outlined),
                     ),
-                    child: Text(_rangeEnd == null
-                        ? 'Tap to select'
-                        : _formatDate(_rangeEnd!)),
+                    child: Text(
+                      _rangeEnd == null
+                          ? 'Tap to select'
+                          : _formatDate(_rangeEnd!),
+                    ),
                   ),
                 ),
               ],
@@ -409,8 +448,10 @@ class _AddEventScreenState extends State<AddEventScreen> {
               // Multiple
               if (_dateMode == DateSelectionMode.multipleDates) ...[
                 if (_multipleDates.isEmpty)
-                  const Text('No dates added yet',
-                      style: TextStyle(color: Colors.grey)),
+                  const Text(
+                    'No dates added yet',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ..._multipleDates.map(
                   (entry) => ListTile(
                     dense: true,
@@ -418,8 +459,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                     title: Text(_formatEntry(entry)),
                     trailing: IconButton(
                       icon: const Icon(Icons.close, size: 18),
-                      onPressed: () =>
-                          setState(() => _multipleDates.remove(entry)),
+                      onPressed:
+                          () => setState(() => _multipleDates.remove(entry)),
                     ),
                   ),
                 ),
@@ -458,10 +499,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         prefixIcon: Icon(Icons.people_outline),
                       ),
                       keyboardType: TextInputType.number,
-                      validator: (val) =>
-                          val == null || val.trim().isEmpty
-                              ? 'Required'
-                              : null,
+                      validator:
+                          (val) =>
+                              val == null || val.trim().isEmpty
+                                  ? 'Required'
+                                  : null,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -473,10 +515,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         prefixIcon: Icon(Icons.payments_outlined),
                       ),
                       keyboardType: TextInputType.number,
-                      validator: (val) =>
-                          val == null || val.trim().isEmpty
-                              ? 'Required'
-                              : null,
+                      validator:
+                          (val) =>
+                              val == null || val.trim().isEmpty
+                                  ? 'Required'
+                                  : null,
                     ),
                   ),
                 ],
@@ -488,52 +531,62 @@ class _AddEventScreenState extends State<AddEventScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () async {
-                          if (_formKey.currentState!.validate() &&
-                              _isDateValid()) {
-                            setState(() => _isLoading = true);
-                            try {
-                              await AuthService().createEvent(
-                                name: _nameController.text.trim(),
-                                description:
-                                    _descriptionController.text.trim(),
-                                dateMode: _dateMode,
-                                dates: _buildDates(),
-                                guestCount:
-                                    int.parse(_guestController.text),
-                                budget: double.parse(_budgetController.text),
-                                coverImageUrl: null, // image upload coming later
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : () async {
+                            if (!_formKey.currentState!.validate()) return;
+                            if (!_isDateValid()) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please select a date'),
+                                ),
                               );
+                              return;
+                            }
+
+                            setState(() => _isLoading = true);
+
+                            try {
+                              await context
+                                  .read<ToiProvider>()
+                                  .createAndRefresh(
+                                    name: _nameController.text.trim(),
+                                    description:
+                                        _descriptionController.text.trim(),
+                                    dateMode: _dateMode,
+                                    dates: _buildDates(),
+                                    guestCount: int.parse(
+                                      _guestController.text,
+                                    ),
+                                    budget: double.parse(
+                                      _budgetController.text,
+                                    ),
+                                    coverImageUrl: null,
+                                  );
                               if (!mounted) return;
                               Navigator.pop(context);
                             } catch (e) {
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    content: Text(
-                                        'Something went wrong: ${e.toString()}')),
+                                  content: Text(
+                                    'Something went wrong: ${e.toString()}',
+                                  ),
+                                ),
                               );
                             } finally {
-                              if (mounted) {
-                                setState(() => _isLoading = false);
-                              }
+                              if (mounted) setState(() => _isLoading = false);
                             }
-                          } else if (!_isDateValid()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Please select a date')),
-                            );
-                          }
-                        },
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Create Event'),
+                          },
+                  child:
+                      _isLoading
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Create Event'),
                 ),
               ),
             ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toibook_app/screens/event%20dashboard/overview_page.dart';
+import 'package:toibook_app/screens/event%20dashboard/tabs/overview_page.dart';
 import '../../models/toi_event.dart';
 
 class EventDashboard extends StatefulWidget {
@@ -20,7 +20,7 @@ class _EventDashboardState extends State<EventDashboard> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
-    
+
     _pages = [
       OverviewPage(event: widget.event),
       const Center(child: Text("Saved Items / Vendors")),
@@ -74,7 +74,10 @@ class _EventDashboardState extends State<EventDashboard> {
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: "Dashboard",
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Saved"),
           BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: "Chat"),
         ],
