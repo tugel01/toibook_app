@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:toibook_app/screens/add_event_screen.dart';
 
 class AddEventCard extends StatelessWidget {
-  const AddEventCard({super.key});
+  final VoidCallback? onReturn;
+  const AddEventCard({super.key, this.onReturn});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const AddEventScreen()),
         );
+        onReturn?.call();
       },
       child: Container(
         decoration: BoxDecoration(

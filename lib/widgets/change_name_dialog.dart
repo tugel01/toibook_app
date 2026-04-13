@@ -44,9 +44,7 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(
           hintText: "Enter your full name",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
           fillColor: Theme.of(context).colorScheme.surface,
         ),
@@ -60,9 +58,11 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
           onPressed: () {
             final newName = _controller.text.trim();
             if (newName.isNotEmpty) {
-              Provider.of<ToiProvider>(context, listen: false)
-                  .updateUserName(newName);
-                  
+              Provider.of<ToiProvider>(
+                context,
+                listen: false,
+              ).updateUserName(newName);
+
               Navigator.pop(context);
             }
           },

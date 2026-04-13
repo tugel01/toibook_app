@@ -1,6 +1,19 @@
+import 'package:toibook_app/models/event_date_dto.dart';
 import 'package:toibook_app/models/expense.dart';
 
-enum DateSelectionMode { single, range, multiple }
+enum DateSelectionMode {
+  singleDate,
+  dateRange,
+  multipleDates;
+
+  String toBackendString() {
+    switch (this) {
+      case DateSelectionMode.singleDate: return 'SINGLE_DATE';
+      case DateSelectionMode.dateRange: return 'DATE_RANGE';
+      case DateSelectionMode.multipleDates: return 'MULTIPLE_DATES';
+    }
+  }
+}
 
 class ToiEvent {
   final String id;
@@ -8,11 +21,7 @@ class ToiEvent {
   final String title;
   final String description;
   final DateSelectionMode dateMode;
-  final DateTime? singleDate;
-  final DateTime? rangeStart;
-  final DateTime? rangeEnd;
-  final List<DateTime>? multipleDates;
-  final String? location;
+  final List<EventDateDto> dates;
   final int guestCount;
   final double budget;
   final String? imageUrl;
@@ -24,19 +33,16 @@ class ToiEvent {
     required this.title,
     required this.description,
     required this.dateMode,
-    this.singleDate,
-    this.rangeStart,
-    this.rangeEnd,
-    this.multipleDates,
-    this.location,
+    required this.dates,
     required this.guestCount,
     required this.budget,
     this.imageUrl,
     this.expenses = const [],
   });
 
-  // may change later if we want to enforce a limit on multiple dates
   static const int? maxMultipleDates = null;
+
+  DateTime get firstDate => dates.first.startDate;
 
   static List<ToiEvent> mockEvents = [
     ToiEvent(
@@ -44,31 +50,38 @@ class ToiEvent {
       userId: 'u-admin',
       title: 'Admin Wedding',
       description: 'A grand wedding celebration',
-      dateMode: DateSelectionMode.single,
-      singleDate: DateTime(2026, 8, 20),
-      location: 'Astana',
+      dateMode: DateSelectionMode.dateRange,
+      dates: [
+        EventDateDto(
+          startDate: DateTime(2026, 8, 20),
+          endDate: DateTime(2026, 8, 22),
+        ),
+      ],
       guestCount: 200,
       budget: 5000000,
-        expenses: [
-    Expense(id: 'ex1', category: ExpenseCategory.decor, amount: 450000),
-    Expense(id: 'ex2', category: ExpenseCategory.venue, amount: 300000),
-  ],
     ),
     ToiEvent(
       id: 'e2',
       userId: 'u-user123',
-      title: 'Sanzhar Birthday',
-      description: 'Birthday party',
-      dateMode: DateSelectionMode.range,
-      rangeStart: DateTime(2026, 12, 10),
-      rangeEnd: DateTime(2026, 12, 12),
-      location: 'Almaty',
+      title: 'Photo Sessions',
+      description: 'Several possible days',
+      dateMode: DateSelectionMode.multipleDates,
+      dates: [
+        EventDateDto(
+          startDate: DateTime(2026, 12, 10),
+          endDate: DateTime(2026, 12, 10),
+        ),
+        EventDateDto(
+          startDate: DateTime(2026, 12, 15),
+          endDate: DateTime(2026, 12, 17),
+        ),
+      ],
       guestCount: 50,
       budget: 300000,
-        expenses: [
-    Expense(id: 'ex1', category: ExpenseCategory.decor, amount: 450000),
-    Expense(id: 'ex2', category: ExpenseCategory.venue, amount: 300000),
-  ],
+      expenses: [
+        Expense(id: 'ex1', category: ExpenseCategory.decor, amount: 450000),
+        Expense(id: 'ex2', category: ExpenseCategory.venue, amount: 300000),
+      ],
     ),
   ];
 }

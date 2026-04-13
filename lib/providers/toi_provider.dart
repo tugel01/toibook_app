@@ -10,50 +10,37 @@ class ToiProvider with ChangeNotifier {
 
   String? _currentCity;
   bool _isDarkMode = false;
-  bool get isDarkMode => _isDarkMode;
 
-  void resetOnLogout() {
-    _currentCity =
-        "Select City"; // restore default city. we dont need it actually but let it be
-    notifyListeners();
-  }
+  bool get isDarkMode => _isDarkMode;
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
 
+  void resetOnLogout() {
+    _currentCity = 'Select City';
+    notifyListeners();
+  }
+
   String get currentCity {
     if (_currentCity != null) return _currentCity!;
-
     final user = AuthService.currentUser;
-    return user?.city ?? "Select City";
+    return user.city ?? 'Select City';
   }
 
   void updateCity(String newCity) {
     _currentCity = newCity;
-    final user = AuthService.currentUser;
-    if (user != null) {
-      user.city = newCity;
-    }
     notifyListeners();
   }
 
   void updateUserName(String newName) {
-    final user = AuthService.currentUser;
-    if (user != null) {
-      user.fullName = newName;
-      notifyListeners();
-    }
-  }
-
-  List<ToiEvent> getEventsByUserId(String userId) {
-    return _events.where((e) => e.userId == userId).toList();
+    AuthService.currentUser.fullName = newName;
+    notifyListeners();
   }
 
   void addEvent(ToiEvent newEvent) {
     _events.add(newEvent);
-
     notifyListeners();
   }
 
@@ -67,11 +54,7 @@ class ToiProvider with ChangeNotifier {
       title: event.title,
       description: event.description,
       dateMode: event.dateMode,
-      singleDate: event.singleDate,
-      rangeStart: event.rangeStart,
-      rangeEnd: event.rangeEnd,
-      multipleDates: event.multipleDates,
-      location: event.location,
+      dates: event.dates,
       guestCount: event.guestCount,
       budget: event.budget,
       imageUrl: event.imageUrl,
@@ -90,11 +73,7 @@ class ToiProvider with ChangeNotifier {
       title: event.title,
       description: event.description,
       dateMode: event.dateMode,
-      singleDate: event.singleDate,
-      rangeStart: event.rangeStart,
-      rangeEnd: event.rangeEnd,
-      multipleDates: event.multipleDates,
-      location: event.location,
+      dates: event.dates,
       guestCount: event.guestCount,
       budget: event.budget,
       imageUrl: event.imageUrl,
@@ -113,11 +92,7 @@ class ToiProvider with ChangeNotifier {
       title: event.title,
       description: event.description,
       dateMode: event.dateMode,
-      singleDate: event.singleDate,
-      rangeStart: event.rangeStart,
-      rangeEnd: event.rangeEnd,
-      multipleDates: event.multipleDates,
-      location: event.location,
+      dates: event.dates,
       guestCount: event.guestCount,
       budget: newBudget,
       imageUrl: event.imageUrl,

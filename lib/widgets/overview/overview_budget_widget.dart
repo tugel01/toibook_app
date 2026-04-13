@@ -223,13 +223,6 @@ class OverviewBudgetWidget extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    'Financial Health',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
                 ],
               ),
               TextButton.icon(
