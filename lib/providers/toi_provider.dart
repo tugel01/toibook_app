@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:toibook_app/models/dashboard_response.dart';
 import 'package:toibook_app/models/event_card_response.dart';
 import 'package:toibook_app/models/event_date_dto.dart';
-import 'package:toibook_app/models/expense.dart';
+import 'package:toibook_app/models/expense_dto.dart';
 import 'package:toibook_app/services/auth_service.dart';
 import 'package:toibook_app/services/event_service.dart';
 import '../models/toi_event.dart';
@@ -16,7 +17,16 @@ class ToiProvider with ChangeNotifier {
   bool get isLoadingEvents => _isLoadingEvents;
   String? get eventsError => _eventsError;
 
-  // Local full events (dashboard, mock for now)
+  // Dashboard
+  DashboardResponse? _dashboard;
+  bool _isLoadingDashboard = false;
+  String? _dashboardError;
+
+  DashboardResponse? get dashboard => _dashboard;
+  bool get isLoadingDashboard => _isLoadingDashboard;
+  String? get dashboardError => _dashboardError;
+
+  // Local full events (mock, until fully replaced)
   final List<ToiEvent> _events = ToiEvent.mockEvents;
   List<ToiEvent> get events => _events;
 
@@ -34,6 +44,8 @@ class ToiProvider with ChangeNotifier {
     _currentCity = 'Select City';
     _eventCards = [];
     _eventsError = null;
+    _dashboard = null;
+    _dashboardError = null;
     notifyListeners();
   }
 
@@ -54,7 +66,6 @@ class ToiProvider with ChangeNotifier {
 
   // Load events from backend
   Future<void> loadEvents() async {
-      print('loadEvents called');
     _isLoadingEvents = true;
     _eventsError = null;
     notifyListeners();
@@ -69,7 +80,23 @@ class ToiProvider with ChangeNotifier {
     }
   }
 
-  // Called after creating an event to refresh the list
+  // Load dashboard for a specific event
+  Future<void> loadDashboard(int eventId) async {
+    _isLoadingDashboard = true;
+    _dashboardError = null;
+    _dashboard = null;
+    notifyListeners();
+
+    try {
+      _dashboard = await EventService().getDashboard(eventId);
+    } catch (e) {
+      _dashboardError = e.toString();
+    } finally {
+      _isLoadingDashboard = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> createAndRefresh({
     required String name,
     required String description,
@@ -88,29 +115,14 @@ class ToiProvider with ChangeNotifier {
       budget: budget,
       coverImageUrl: coverImageUrl,
     );
-    await loadEvents(); // refresh list after creation
+    await loadEvents();
   }
 
-  // Local event mutations (mock, until full backend)
-  void addExpense(String eventId, Expense expense) {
-    final index = _events.indexWhere((e) => e.id == eventId);
-    if (index == -1) return;
-    final event = _events[index];
-    _events[index] = ToiEvent(
-      id: event.id,
-      userId: event.userId,
-      title: event.title,
-      description: event.description,
-      dateMode: event.dateMode,
-      dates: event.dates,
-      guestCount: event.guestCount,
-      budget: event.budget,
-      imageUrl: event.imageUrl,
-      expenses: [...event.expenses, expense],
-    );
-    notifyListeners();
+  Future<void> addExpenseAndRefresh(int eventId, ExpenseDto expense) async {
+    await EventService().addExpense(eventId, expense);
+    await loadDashboard(eventId);
   }
-
+/*
   void deleteExpense(String eventId, String expenseId) {
     final index = _events.indexWhere((e) => e.id == eventId);
     if (index == -1) return;
@@ -130,8 +142,10 @@ class ToiProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  */
+
   void updateBudgetAndExpenses(
-      String eventId, double newBudget, List<Expense> updatedExpenses) {
+      String eventId, double newBudget, List<ExpenseDto> updatedExpenses) {
     final index = _events.indexWhere((e) => e.id == eventId);
     if (index == -1) return;
     final event = _events[index];

@@ -1,5 +1,6 @@
 import 'package:toibook_app/models/event_date_dto.dart';
-import 'package:toibook_app/models/expense.dart';
+import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/expense_type.dart';
 
 enum DateSelectionMode {
   singleDate,
@@ -25,7 +26,7 @@ class ToiEvent {
   final int guestCount;
   final double budget;
   final String? imageUrl;
-  final List<Expense> expenses;
+  final List<ExpenseDto> expenses;
 
   ToiEvent({
     required this.id,
@@ -79,8 +80,8 @@ class ToiEvent {
       guestCount: 50,
       budget: 300000,
       expenses: [
-        Expense(id: 'ex1', category: ExpenseCategory.decor, amount: 450000),
-        Expense(id: 'ex2', category: ExpenseCategory.venue, amount: 300000),
+        ExpenseDto(id: 1, expenseType: ExpenseType.decor, amount: 450000),
+        ExpenseDto(id: 2, expenseType: ExpenseType.venue, amount: 300000),
       ],
     ),
   ];

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:toibook_app/models/expense.dart';
+import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/expense_type.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddExpenseSheet extends StatefulWidget {
-  final String eventId;
+  final int eventId;
 
   const AddExpenseSheet({super.key, required this.eventId});
 
@@ -14,17 +15,18 @@ class AddExpenseSheet extends StatefulWidget {
 
 class _AddExpenseSheetState extends State<AddExpenseSheet> {
   static const _categoryColors = {
-    ExpenseCategory.decor: Color(0xFF1B4332),
-    ExpenseCategory.venue: Color(0xFF8B6914),
-    ExpenseCategory.music: Color(0xFFD4A017),
-    ExpenseCategory.food: Color(0xFF8BC34A),
-    ExpenseCategory.other: Color(0xFFB0BEC5),
+    ExpenseType.decor: Color(0xFF1B4332),
+    ExpenseType.venue: Color(0xFF8B6914),
+    ExpenseType.music: Color(0xFFD4A017),
+    ExpenseType.food: Color(0xFF8BC34A),
+    ExpenseType.other: Color(0xFFB0BEC5),
   };
 
-  ExpenseCategory _selectedCategory = ExpenseCategory.other;
+  ExpenseType _selectedCategory = ExpenseType.other;
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   String? _amountError;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -33,24 +35,30 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit() async {
     final amount = double.tryParse(_amountController.text);
     if (amount == null || amount <= 0) {
       setState(() => _amountError = 'Enter a valid number');
       return;
     }
-    Provider.of<ToiProvider>(context, listen: false).addExpense(
-      widget.eventId,
-      Expense(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        category: _selectedCategory,
-        amount: amount,
-        note: _noteController.text.trim().isEmpty
-            ? null
-            : _noteController.text.trim(),
-      ),
-    );
-    Navigator.pop(context);
+
+    setState(() => _isLoading = true);
+
+    try {
+await context.read<ToiProvider>().addExpenseAndRefresh(
+  widget.eventId,
+  ExpenseDto(
+    id: null,
+    expenseType: _selectedCategory,
+    amount: amount.toInt(),
+    description: _noteController.text.isEmpty ? null : _noteController.text,
+  ),
+);
+      if (!mounted) return;
+      Navigator.pop(context);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -79,10 +87,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           const SizedBox(height: 20),
           Text(
             'Add Expense',
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
 
@@ -90,16 +97,16 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: ExpenseCategory.values.map((cat) {
-              final selected = _selectedCategory == cat;
-              return ChoiceChip(
-                label: Text(cat.label),
-                selected: selected,
-                selectedColor: _categoryColors[cat]?.withValues(alpha: 0.3),
-                onSelected: (_) =>
-                    setState(() => _selectedCategory = cat),
-              );
-            }).toList(),
+            children:
+                ExpenseType.values.map((cat) {
+                  final selected = _selectedCategory == cat;
+                  return ChoiceChip(
+                    label: Text(cat.label),
+                    selected: selected,
+                    selectedColor: _categoryColors[cat]?.withValues(alpha: 0.2),
+                    onSelected: (_) => setState(() => _selectedCategory = cat),
+                  );
+                }).toList(),
           ),
           const SizedBox(height: 16),
 
@@ -134,8 +141,15 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
             width: double.infinity,
             height: 52,
             child: FilledButton(
-              onPressed: _submit,
-              child: const Text('Add Expense'),
+              onPressed: _isLoading ? null : _submit,
+              child:
+                  _isLoading
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Text('Add Expense'),
             ),
           ),
         ],

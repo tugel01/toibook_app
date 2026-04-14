@@ -1,11 +1,18 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:toibook_app/models/expense.dart';
+import 'package:toibook_app/models/expense_type.dart';
+
+class DonutExpense {
+  final ExpenseType category;
+  final double amount;
+
+  DonutExpense({required this.category, required this.amount});
+}
 
 class DonutPainter extends CustomPainter {
-  final List<Expense> expenses;
-  final double totalBudget;
-  final Map<ExpenseCategory, Color> categoryColors;
+  final List<DonutExpense> expenses;
+  final int totalBudget;
+  final Map<ExpenseType, Color> categoryColors;
 
   DonutPainter({
     required this.expenses,
@@ -23,11 +30,10 @@ class DonutPainter extends CustomPainter {
       radius: radius - strokeWidth / 2,
     );
 
-    final paint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth
-          ..strokeCap = StrokeCap.butt;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
 
     // Background ring
     paint.color = Colors.grey[200]!;
@@ -36,19 +42,19 @@ class DonutPainter extends CustomPainter {
     if (totalBudget <= 0 || expenses.isEmpty) return;
 
     // Group by category
-    final Map<ExpenseCategory, double> totals = {};
+    final Map<ExpenseType, double> totals = {};
     for (final e in expenses) {
       totals[e.category] = (totals[e.category] ?? 0) + e.amount;
     }
 
-
-    const gapAngle = 0.01;
+    const gapAngle = 0.03;
     double startAngle = -pi / 2;
 
     for (final entry in totals.entries) {
       final fraction = (entry.value / totalBudget).clamp(0.0, 1.0);
       final sweep = fraction * 2 * pi;
 
+      if (sweep < 0.01) continue;
 
       paint.color = categoryColors[entry.key] ?? Colors.grey;
       canvas.drawArc(rect, startAngle, sweep - gapAngle, false, paint);

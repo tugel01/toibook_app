@@ -1,45 +1,69 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:toibook_app/models/expense.dart';
-import 'package:toibook_app/models/toi_event.dart';
+import 'package:toibook_app/models/budget_response.dart';
+import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/expense_type.dart';
 import 'package:toibook_app/widgets/overview/budget/add_expense_sheet.dart';
 import 'package:toibook_app/widgets/overview/budget/donut_painter.dart';
 import 'package:toibook_app/widgets/overview/budget/edit_budget_sheet.dart';
 
 class OverviewBudgetWidget extends StatelessWidget {
-  final ToiEvent event;
+  final int eventId;
+  final BudgetResponse budgetResponse;
 
-  const OverviewBudgetWidget({super.key, required this.event});
+  const OverviewBudgetWidget({
+    super.key,
+    required this.eventId,
+    required this.budgetResponse,
+  });
 
   static const _categoryColors = {
-    ExpenseCategory.decor: Color(0xFF1B4332),
-    ExpenseCategory.venue: Color(0xFF8B6914),
-    ExpenseCategory.music: Color(0xFFD4A017),
-    ExpenseCategory.food: Color(0xFF8BC34A),
-    ExpenseCategory.other: Color(0xFFB0BEC5),
+    ExpenseType.decor: Color(0xFF1B4332),
+    ExpenseType.venue: Color(0xFF8B6914),
+    ExpenseType.music: Color(0xFFD4A017),
+    ExpenseType.food: Color(0xFF8BC34A),
+    ExpenseType.other: Color(0xFFB0BEC5),
   };
 
-  double _spentFor(ExpenseCategory cat) => event.expenses
-      .where((e) => e.category == cat)
-      .fold(0.0, (sum, e) => sum + e.amount);
+  int _spentFor(ExpenseType cat) => budgetResponse.expenses
+      .where((e) => e.expenseType == cat)
+      .fold(0, (sum, e) => sum + e.amount);
 
-  String _formatAmount(double amount) {
+  String _formatAmount(int amount) {
     if (amount >= 1000000) return '₸${(amount / 1000000).toStringAsFixed(1)}M';
     if (amount >= 1000) return '₸${(amount / 1000).toStringAsFixed(0)}K';
     return '₸${amount.toInt()}';
   }
 
   void _showEditBudgetSheet(BuildContext context) {
+    print("WAIT");
+    /*
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => EditBudgetSheet(event: event),
+      builder:
+          (ctx) =>
+              EditBudgetSheet(eventId: eventId, budgetResponse: budgetResponse),
+    );*/
+  }
+
+  void _showAddExpenseSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => AddExpenseSheet(eventId: eventId),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final totalBudget = event.budget;
-    final totalSpent = event.expenses.fold(0.0, (sum, e) => sum + e.amount);
+    final expenses = budgetResponse.expenses;
+    final totalSpent = expenses.fold(0, (sum, e) => sum + e.amount);
+
+    final totalBudget = budgetResponse.budgetAmount;
     final remaining = totalBudget - totalSpent;
 
     return Container(
@@ -57,16 +81,11 @@ class OverviewBudgetWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Budget Overview',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              Text(
+                'Budget Overview',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               TextButton.icon(
                 onPressed: () => _showEditBudgetSheet(context),
@@ -84,7 +103,6 @@ class OverviewBudgetWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-
           // Donut chart
           SizedBox(
             height: 180,
@@ -94,7 +112,16 @@ class OverviewBudgetWidget extends StatelessWidget {
                 CustomPaint(
                   size: const Size(180, 180),
                   painter: DonutPainter(
-                    expenses: event.expenses,
+                    expenses:
+                        expenses
+                            .map(
+                              (e) => DonutExpense(
+                                category: e.expenseType,
+                                amount: e.amount.toDouble(),
+                              ),
+                            )
+                            .toList(),
+
                     totalBudget: totalBudget,
                     categoryColors: _categoryColors,
                   ),
@@ -132,7 +159,7 @@ class OverviewBudgetWidget extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children:
-                ExpenseCategory.values.map((cat) {
+                ExpenseType.values.map((cat) {
                   final spent = _spentFor(cat);
                   if (spent == 0) return const SizedBox.shrink();
                   return Container(
@@ -141,10 +168,9 @@ class OverviewBudgetWidget extends StatelessWidget {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -207,33 +233,25 @@ class OverviewBudgetWidget extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 32),
 
-                    // Add expense button
+          // Add expense button
           SizedBox(
             width: double.infinity,
             height: 52,
             child: FilledButton.icon(
-              onPressed:
-                  () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(24),
-                      ),
-                    ),
-                    builder: (ctx) => AddExpenseSheet(eventId: event.id),
-                  ),
+              onPressed: () => _showAddExpenseSheet(context),
               icon: const Icon(Icons.add),
               label: const Text('Add Expense'),
             ),
           ),
+          const SizedBox(height: 12),
 
           // Expense list
-          if (event.expenses.isNotEmpty) ...[
+          if (expenses.isNotEmpty) ...[
             const Divider(height: 32),
-            ...event.expenses.map(
+            ...expenses.map(
               (exp) => ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
@@ -241,9 +259,7 @@ class OverviewBudgetWidget extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: _categoryColors[exp.category]?.withValues(
-                      alpha: 0.15,
-                    ),
+                    color: _categoryColors[exp.expenseType]?.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
@@ -251,31 +267,25 @@ class OverviewBudgetWidget extends StatelessWidget {
                       width: 10,
                       height: 10,
                       decoration: BoxDecoration(
-                        color: _categoryColors[exp.category],
+                        color: _categoryColors[exp.expenseType],
                         shape: BoxShape.circle,
                       ),
                     ),
                   ),
                 ),
                 title: Text(
-                  exp.category.label,
+                  exp.expenseType.label,
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
-                subtitle: exp.note != null ? Text(exp.note!) : null,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _formatAmount(exp.amount),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                subtitle:
+                    exp.description != null ? Text(exp.description!) : null,
+                trailing: Text(
+                  _formatAmount(exp.amount),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
           ],
-
-
         ],
       ),
     );

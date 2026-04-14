@@ -1,6 +1,8 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toibook_app/models/expense.dart';
+import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/expense_type.dart';
 import 'package:toibook_app/models/toi_event.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:toibook_app/widgets/overview/budget/edit_expense_sheet.dart';
@@ -16,15 +18,15 @@ class EditBudgetSheet extends StatefulWidget {
 
 class _EditBudgetSheetState extends State<EditBudgetSheet> {
   late final TextEditingController _budgetController;
-  late List<Expense> _expenses;
+  late List<ExpenseDto> _expenses;
   String? _budgetError;
 
   static const _categoryColors = {
-    ExpenseCategory.decor: Color(0xFF1B4332),
-    ExpenseCategory.venue: Color(0xFF8B6914),
-    ExpenseCategory.music: Color(0xFFD4A017),
-    ExpenseCategory.food: Color(0xFF8BC34A),
-    ExpenseCategory.other: Color(0xFFB0BEC5),
+    ExpenseType.decor: Color(0xFF1B4332),
+    ExpenseType.venue: Color(0xFF8B6914),
+    ExpenseType.music: Color(0xFFD4A017),
+    ExpenseType.food: Color(0xFF8BC34A),
+    ExpenseType.other: Color(0xFFB0BEC5),
   };
 
   @override
@@ -43,14 +45,14 @@ class _EditBudgetSheetState extends State<EditBudgetSheet> {
     super.dispose();
   }
 
-  String _formatAmount(double amount) {
+  String _formatAmount(int amount) {
     if (amount >= 1000000) return '₸${(amount / 1000000).toStringAsFixed(1)}M';
     if (amount >= 1000) return '₸${(amount / 1000).toStringAsFixed(0)}K';
     return '₸${amount.toInt()}';
   }
 
-  Future<void> _openEditExpense(Expense expense) async {
-    final updated = await showModalBottomSheet<Expense>(
+  Future<void> _openEditExpense(ExpenseDto expense) async {
+    final updated = await showModalBottomSheet<ExpenseDto>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -67,7 +69,7 @@ class _EditBudgetSheetState extends State<EditBudgetSheet> {
     }
   }
 
-  void _deleteExpense(String expenseId) {
+  void _deleteExpense(int expenseId) {
     setState(() => _expenses.removeWhere((e) => e.id == expenseId));
   }
 
@@ -87,7 +89,7 @@ class _EditBudgetSheetState extends State<EditBudgetSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final totalSpent = _expenses.fold(0.0, (sum, e) => sum + e.amount);
+    final int totalSpent = _expenses.fold(0, (sum, e) => sum + e.amount);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -170,7 +172,7 @@ class _EditBudgetSheetState extends State<EditBudgetSheet> {
                             width: 36,
                             height: 36,
                             decoration: BoxDecoration(
-                              color: _categoryColors[exp.category]?.withOpacity(
+                              color: _categoryColors[exp.expenseType]?.withOpacity(
                                 0.15,
                               ),
                               borderRadius: BorderRadius.circular(10),
@@ -180,17 +182,17 @@ class _EditBudgetSheetState extends State<EditBudgetSheet> {
                                 width: 10,
                                 height: 10,
                                 decoration: BoxDecoration(
-                                  color: _categoryColors[exp.category],
+                                  color: _categoryColors[exp.expenseType],
                                   shape: BoxShape.circle,
                                 ),
                               ),
                             ),
                           ),
                           title: Text(
-                            exp.category.label,
+                            exp.expenseType.label,
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
-                          subtitle: exp.note != null ? Text(exp.note!) : null,
+                          subtitle: exp.description != null ? Text(exp.description!) : null,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -238,3 +240,4 @@ class _EditBudgetSheetState extends State<EditBudgetSheet> {
     );
   }
 }
+*/

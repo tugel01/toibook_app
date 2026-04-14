@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:toibook_app/models/dashboard_response.dart';
 import 'package:toibook_app/models/event_date_dto.dart';
 import 'package:toibook_app/models/event_card_response.dart';
+import 'package:toibook_app/models/expense_dto.dart';
 import 'package:toibook_app/models/toi_event.dart';
 import 'package:toibook_app/services/auth_service.dart';
 
@@ -14,19 +16,16 @@ class EventService {
     return {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
     };
   }
 
   Future<List<EventCardResponse>> getEvents() async {
-    print("EventService.getEvents called");
     try {
       final res = await http.get(
         Uri.parse('$_baseUrl/events'),
         headers: await _headers,
       );
-
-      print('getEvents status: ${res.statusCode}');
-      print('getEvents body: ${res.body}');
 
       if (res.statusCode == 200) {
         final List<dynamic> body = jsonDecode(res.body);
@@ -34,6 +33,22 @@ class EventService {
       }
       if (res.statusCode == 404) return [];
       throw Exception('Failed to load events: ${res.statusCode}');
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<DashboardResponse> getDashboard(int eventId) async {
+    try {
+      final res = await http.get(
+        Uri.parse('$_baseUrl/events/$eventId/dashboard'),
+        headers: await _headers,
+      );
+
+      if (res.statusCode == 200) {
+        return DashboardResponse.fromJson(jsonDecode(res.body));
+      }
+      throw Exception('Failed to load dashboard: ${res.statusCode}');
     } catch (e) {
       throw Exception('Network error: $e');
     }
@@ -65,11 +80,28 @@ class EventService {
         body: jsonEncode(body),
       );
 
-      print('createEvent status: ${res.statusCode}');
-      print('createEvent body: ${res.body}');
-
       if (res.statusCode != 200 && res.statusCode != 201) {
         throw Exception('Failed to create event: ${res.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> addExpense(int eventId, ExpenseDto expense) async {
+    try {
+      print(expense.toJson());
+      final res = await http.post(
+        Uri.parse('$_baseUrl/events/$eventId/dashboard/budget/expenses'),
+        headers: await _headers,
+        body: jsonEncode(expense.toJson()),
+      );
+      
+      if (res.statusCode == 401) {
+        throw Exception('Unauthorized: Please log in again.');
+      }
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        throw Exception('Failed to add expense: ${res.statusCode}');
       }
     } catch (e) {
       throw Exception('Network error: $e');

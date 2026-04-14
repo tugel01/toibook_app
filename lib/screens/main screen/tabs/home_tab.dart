@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toibook_app/models/toi_event.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:toibook_app/screens/event%20dashboard/event_dashboard.dart';
 import 'package:toibook_app/widgets/add_event_card.dart';
@@ -93,9 +92,7 @@ class _HomeTabState extends State<HomeTab> {
               () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) =>
-                          EventDashboard(event: ToiEvent.mockEvents.first),
+                  builder: (context) => EventDashboard(event: events[index]),
                 ),
               ),
           child: EventCard(event: events[index]),

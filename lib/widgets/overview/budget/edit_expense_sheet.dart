@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:toibook_app/models/expense.dart';
+import 'package:toibook_app/models/expense_dto.dart';
 
 class EditExpenseSheet extends StatefulWidget {
-  final Expense expense;
+  final ExpenseDto expense;
 
   const EditExpenseSheet({super.key, required this.expense});
 
@@ -22,7 +22,7 @@ class _EditExpenseSheetState extends State<EditExpenseSheet> {
       text: widget.expense.amount.toInt().toString(),
     );
     _noteController = TextEditingController(
-      text: widget.expense.note ?? '',
+      text: widget.expense.description ?? '',
     );
   }
 
@@ -34,7 +34,7 @@ class _EditExpenseSheetState extends State<EditExpenseSheet> {
   }
 
   void _submit() {
-    final amount = double.tryParse(_amountController.text);
+    final amount = int.tryParse(_amountController.text);
     if (amount == null || amount <= 0) {
       setState(() => _amountError = 'Enter a valid number');
       return;
@@ -43,11 +43,11 @@ class _EditExpenseSheetState extends State<EditExpenseSheet> {
     // Return updated expense to edit budget sheet
     Navigator.pop(
       context,
-      Expense(
+      ExpenseDto(
         id: widget.expense.id,
-        category: widget.expense.category,
+        expenseType: widget.expense.expenseType,
         amount: amount,
-        note: _noteController.text.trim().isEmpty
+        description: _noteController.text.trim().isEmpty
             ? null
             : _noteController.text.trim(),
       ),
@@ -84,7 +84,7 @@ class _EditExpenseSheetState extends State<EditExpenseSheet> {
             children: [
               Expanded(
                 child: Text(
-                  'Edit ${widget.expense.category.label} Expense',
+                  'Edit ${widget.expense.expenseType.label} Expense',
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge
