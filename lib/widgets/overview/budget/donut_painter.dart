@@ -47,7 +47,7 @@ class DonutPainter extends CustomPainter {
       totals[e.category] = (totals[e.category] ?? 0) + e.amount;
     }
 
-    const gapAngle = 0.03;
+    const gapAngle = 0.015;
     double startAngle = -pi / 2;
 
     for (final entry in totals.entries) {

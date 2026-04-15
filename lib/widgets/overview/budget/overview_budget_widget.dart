@@ -1,11 +1,13 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:toibook_app/models/budget_response.dart';
 import 'package:toibook_app/models/expense_dto.dart';
 import 'package:toibook_app/models/expense_type.dart';
+import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:toibook_app/widgets/overview/budget/add_expense_sheet.dart';
 import 'package:toibook_app/widgets/overview/budget/donut_painter.dart';
 import 'package:toibook_app/widgets/overview/budget/edit_budget_sheet.dart';
+import 'package:toibook_app/widgets/overview/budget/edit_expense_sheet.dart';
+import 'package:provider/provider.dart';
 
 class OverviewBudgetWidget extends StatelessWidget {
   final int eventId;
@@ -55,6 +57,44 @@ class OverviewBudgetWidget extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => AddExpenseSheet(eventId: eventId),
+    );
+  }
+
+  void _showEditExpenseSheet(BuildContext context, ExpenseDto expense) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => EditExpenseSheet(eventId: eventId, expense: expense),
+    );
+  }
+
+  void _showDeleteExpenseDialog(BuildContext context, ExpenseDto exp) {
+    showDialog(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Delete Expense'),
+            content: const Text(
+              'Are you sure you want to delete this expense?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed:
+                    () => {
+                      context.read<ToiProvider>().deleteExpense(eventId, exp),
+                      Navigator.of(context).pop(),
+                    },
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
     );
   }
 
@@ -168,9 +208,10 @@ class OverviewBudgetWidget extends StatelessWidget {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
@@ -255,11 +296,16 @@ class OverviewBudgetWidget extends StatelessWidget {
               (exp) => ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
+                onTap: () {
+                  _showEditExpenseSheet(context, exp);
+                },
                 leading: Container(
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: _categoryColors[exp.expenseType]?.withValues(alpha: 0.15),
+                    color: _categoryColors[exp.expenseType]?.withValues(
+                      alpha: 0.15,
+                    ),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
@@ -279,9 +325,24 @@ class OverviewBudgetWidget extends StatelessWidget {
                 ),
                 subtitle:
                     exp.description != null ? Text(exp.description!) : null,
-                trailing: Text(
-                  _formatAmount(exp.amount),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _formatAmount(exp.amount),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Color.fromARGB(255, 198, 92, 85),
+                      ),
+                      onPressed: () {
+                        _showDeleteExpenseDialog(context, exp);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

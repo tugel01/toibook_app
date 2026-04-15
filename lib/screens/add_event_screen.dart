@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:toibook_app/models/date_selection_mode.dart';
 import 'package:toibook_app/models/event_date_dto.dart';
-import 'package:toibook_app/models/toi_event.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -554,7 +554,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                     name: _nameController.text.trim(),
                                     description:
                                         _descriptionController.text.trim(),
-                                    dateMode: _dateMode,
+                                    dateType: _dateMode,
                                     dates: _buildDates(),
                                     guestCount: int.parse(
                                       _guestController.text,

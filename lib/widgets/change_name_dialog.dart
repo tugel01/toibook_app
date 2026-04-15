@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
-import 'package:toibook_app/services/auth_service.dart';
 
 class ChangeNameDialog extends StatefulWidget {
   const ChangeNameDialog({super.key});
@@ -23,8 +22,9 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
   @override
   void initState() {
     super.initState();
-    final currentUser = AuthService.currentUser;
-    _controller = TextEditingController(text: currentUser?.fullName ?? "");
+    final provider = context.watch<ToiProvider>();
+    final user = provider.userProfile;
+    _controller = TextEditingController(text: user?.fullname ?? "");
   }
 
   @override
@@ -57,14 +57,11 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
         ElevatedButton(
           onPressed: () {
             final newName = _controller.text.trim();
-            if (newName.isNotEmpty) {
-              Provider.of<ToiProvider>(
-                context,
-                listen: false,
-              ).updateUserName(newName);
+            
+            // TODO: IMPLEMENT CHANGE NAME
 
-              Navigator.pop(context);
-            }
+
+
           },
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(

@@ -45,15 +45,16 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     setState(() => _isLoading = true);
 
     try {
-await context.read<ToiProvider>().addExpenseAndRefresh(
-  widget.eventId,
-  ExpenseDto(
-    id: null,
-    expenseType: _selectedCategory,
-    amount: amount.toInt(),
-    description: _noteController.text.isEmpty ? null : _noteController.text,
-  ),
-);
+      await context.read<ToiProvider>().addExpenseAndRefresh(
+        widget.eventId,
+        ExpenseDto(
+          id: null,
+          expenseType: _selectedCategory,
+          amount: amount.toInt(),
+          description:
+              _noteController.text.isEmpty ? null : _noteController.text,
+        ),
+      );
       if (!mounted) return;
       Navigator.pop(context);
     } finally {

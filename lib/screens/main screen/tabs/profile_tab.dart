@@ -11,9 +11,8 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = AuthService.currentUser;
-    final toiProvider = context.watch<ToiProvider>();
-
+    final provider = context.watch<ToiProvider>();
+    final user = provider.userProfile;
     return Scaffold(
       appBar: AppBar(title: const Text("My Profile"), centerTitle: true),
       body: SingleChildScrollView(
@@ -24,13 +23,13 @@ class ProfileScreen extends StatelessWidget {
               radius: 50,
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               child: Text(
-                user?.fullName[0] ?? "U",
+                user?.fullname[0] ?? "U",
                 style: const TextStyle(fontSize: 32),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              user?.fullName ?? "Guest User",
+              user?.fullname ?? "Guest User",
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             Text(
@@ -47,27 +46,26 @@ class ProfileScreen extends StatelessWidget {
               context,
               Icons.person_outline,
               "Full name",
-              user?.fullName ?? "",
+              user?.fullname ?? "",
               () => ChangeNameDialog.show(context),
-              
             ),
             _buildListTile(
               context,
               Icons.location_city_outlined,
               "City",
-              toiProvider.currentCity,
-              (() =>  CityPicker.show(context)),
+              user?.city?.label ?? "",
+              (() => CityPicker.show(context)),
             ),
 
             _buildSectionHeader(context, "Preferences"),
 
             SwitchListTile(
               secondary: Icon(
-                toiProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                provider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
               ),
               title: const Text("Dark Mode"),
-              value: toiProvider.isDarkMode,
-              onChanged: (val) => toiProvider.toggleTheme(),
+              value: provider.isDarkMode,
+              onChanged: (val) => provider.toggleTheme(),
             ),
 
             const Divider(),
@@ -142,12 +140,9 @@ class ProfileScreen extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  await AuthService().logout();
+                  context.read<ToiProvider>().clearUserProfile();
 
-                  Provider.of<ToiProvider>(
-                    context,
-                    listen: false,
-                  ).resetOnLogout();
+                  await AuthService().logout();
 
                   if (context.mounted) {
                     Navigator.of(

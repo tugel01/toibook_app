@@ -17,16 +17,17 @@ class _HomeTabState extends State<HomeTab> {
   @override
   void initState() {
     super.initState();
-    // load once when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ToiProvider>().loadEvents();
     });
+    context.read<ToiProvider>().loadUserProfile();
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ToiProvider>();
-    final currentCity = provider.currentCity;
+    final profile = provider.userProfile;
+    final currentCity = profile?.city?.label ?? 'Select City';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -109,7 +110,7 @@ class _HomeTabState extends State<HomeTab> {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/expense_type.dart';
+import 'package:toibook_app/providers/toi_provider.dart';
+import 'package:provider/provider.dart';
 
 class EditExpenseSheet extends StatefulWidget {
+  final int eventId;
   final ExpenseDto expense;
 
-  const EditExpenseSheet({super.key, required this.expense});
+  const EditExpenseSheet({
+    super.key,
+    required this.eventId,
+    required this.expense,
+  });
 
   @override
   State<EditExpenseSheet> createState() => _EditExpenseSheetState();
 }
 
 class _EditExpenseSheetState extends State<EditExpenseSheet> {
+  static const _categoryColors = {
+    ExpenseType.decor: Color(0xFF1B4332),
+    ExpenseType.venue: Color(0xFF8B6914),
+    ExpenseType.music: Color(0xFFD4A017),
+    ExpenseType.food: Color(0xFF8BC34A),
+    ExpenseType.other: Color(0xFFB0BEC5),
+  };
+  late ExpenseType _selectedCategory;
   late final TextEditingController _amountController;
   late final TextEditingController _noteController;
   String? _amountError;
@@ -18,6 +34,7 @@ class _EditExpenseSheetState extends State<EditExpenseSheet> {
   @override
   void initState() {
     super.initState();
+    _selectedCategory = widget.expense.expenseType;
     _amountController = TextEditingController(
       text: widget.expense.amount.toInt().toString(),
     );
@@ -33,25 +50,31 @@ class _EditExpenseSheetState extends State<EditExpenseSheet> {
     super.dispose();
   }
 
-  void _submit() {
-    final amount = int.tryParse(_amountController.text);
+  void _submit() async {
+    final amount = double.tryParse(_amountController.text);
     if (amount == null || amount <= 0) {
       setState(() => _amountError = 'Enter a valid number');
       return;
     }
 
-    // Return updated expense to edit budget sheet
-    Navigator.pop(
-      context,
-      ExpenseDto(
-        id: widget.expense.id,
-        expenseType: widget.expense.expenseType,
-        amount: amount,
-        description: _noteController.text.trim().isEmpty
-            ? null
-            : _noteController.text.trim(),
-      ),
-    );
+    try {
+      await context.read<ToiProvider>().editExpense(
+        widget.eventId,
+        ExpenseDto(
+          id: widget.expense.id,
+          expenseType: _selectedCategory,
+          amount: amount.toInt(),
+          description:
+              _noteController.text.trim().isEmpty
+                  ? null
+                  : _noteController.text.trim(),
+        ),
+      );
+      if (!mounted) return;
+      Navigator.pop(context);
+    } finally {
+      if (mounted) setState(() => _amountError = null);
+    }
   }
 
   @override
@@ -85,15 +108,31 @@ class _EditExpenseSheetState extends State<EditExpenseSheet> {
               Expanded(
                 child: Text(
                   'Edit ${widget.expense.expenseType.label} Expense',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
+
+          // Category chips
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                ExpenseType.values.map((cat) {
+                  final selected = _selectedCategory == cat;
+                  return ChoiceChip(
+                    label: Text(cat.label),
+                    selected: selected,
+                    selectedColor: _categoryColors[cat]?.withValues(alpha: 0.2),
+                    onSelected: (_) => setState(() => _selectedCategory = cat),
+                  );
+                }).toList(),
+          ),
+          const SizedBox(height: 16),
 
           // Amount
           TextField(

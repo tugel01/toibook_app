@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:toibook_app/models/dashboard_response.dart';
+import 'package:toibook_app/models/date_selection_mode.dart';
 import 'package:toibook_app/models/event_date_dto.dart';
 import 'package:toibook_app/models/event_card_response.dart';
 import 'package:toibook_app/models/expense_dto.dart';
-import 'package:toibook_app/models/toi_event.dart';
 import 'package:toibook_app/services/auth_service.dart';
 
 class EventService {
@@ -90,18 +90,52 @@ class EventService {
 
   Future<void> addExpense(int eventId, ExpenseDto expense) async {
     try {
-      print(expense.toJson());
       final res = await http.post(
         Uri.parse('$_baseUrl/events/$eventId/dashboard/budget/expenses'),
         headers: await _headers,
         body: jsonEncode(expense.toJson()),
       );
-      
+
       if (res.statusCode == 401) {
         throw Exception('Unauthorized: Please log in again.');
       }
       if (res.statusCode != 200 && res.statusCode != 201) {
         throw Exception('Failed to add expense: ${res.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> editExpense(int eventId, ExpenseDto expense) async {
+    try {
+      final res = await http.put(
+        Uri.parse(
+          '$_baseUrl/events/$eventId/dashboard/budget/expenses/${expense.id}',
+        ),
+        headers: await _headers,
+        body: jsonEncode(expense.toJson()),
+      );
+
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        throw Exception('Failed to edit expense: ${res.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> deleteExpense(int eventId, ExpenseDto expense) async {
+    try {
+      final res = await http.delete(
+        Uri.parse(
+          '$_baseUrl/events/$eventId/dashboard/budget/expenses/${expense.id}',
+        ),
+        headers: await _headers,
+      );
+
+      if (res.statusCode != 200 && res.statusCode != 204) {
+        throw Exception('Failed to delete expense: ${res.statusCode}');
       }
     } catch (e) {
       throw Exception('Network error: $e');

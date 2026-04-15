@@ -24,7 +24,7 @@ class CityPicker extends StatelessWidget {
       "Astana",
       "Shymkent",
       "Aktau",
-      "Kostanay"
+      "Kostanay",
     ];
 
     return Padding(
@@ -43,10 +43,9 @@ class CityPicker extends StatelessWidget {
           ),
           Text(
             "Select City",
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
           ...cities.map(
@@ -54,7 +53,8 @@ class CityPicker extends StatelessWidget {
               leading: const Icon(Icons.location_city),
               title: Text(city),
               onTap: () {
-                Provider.of<ToiProvider>(context, listen: false).updateCity(city);
+                // TODO: IMPLEMENT
+
                 Navigator.pop(context);
               },
             ),

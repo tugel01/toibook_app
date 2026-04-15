@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:toibook_app/models/dashboard_response.dart';
+import 'package:toibook_app/models/date_selection_mode.dart';
 import 'package:toibook_app/models/event_card_response.dart';
 import 'package:toibook_app/models/event_date_dto.dart';
 import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/user_model.dart';
 import 'package:toibook_app/services/auth_service.dart';
 import 'package:toibook_app/services/event_service.dart';
-import '../models/toi_event.dart';
 
 class ToiProvider with ChangeNotifier {
   // Backend events (home tab)
@@ -26,41 +27,27 @@ class ToiProvider with ChangeNotifier {
   bool get isLoadingDashboard => _isLoadingDashboard;
   String? get dashboardError => _dashboardError;
 
-  // Local full events (mock, until fully replaced)
-  final List<ToiEvent> _events = ToiEvent.mockEvents;
-  List<ToiEvent> get events => _events;
+  //User profile
+  UserProfile? _userProfile;
+  UserProfile? get userProfile => _userProfile;
 
-  // City + theme
-  String? _currentCity;
+  Future<void> loadUserProfile() async {
+    if (_userProfile != null) return;
+    _userProfile = await AuthService().fetchUserProfile();
+    notifyListeners();
+  }
+
+  void clearUserProfile() {
+    _userProfile = null;
+    notifyListeners();
+  }
+
+  // theme
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode;
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
-    notifyListeners();
-  }
-
-  void resetOnLogout() {
-    _currentCity = 'Select City';
-    _eventCards = [];
-    _eventsError = null;
-    _dashboard = null;
-    _dashboardError = null;
-    notifyListeners();
-  }
-
-  String get currentCity {
-    if (_currentCity != null) return _currentCity!;
-    return AuthService.currentUser.city ?? 'Select City';
-  }
-
-  void updateCity(String newCity) {
-    _currentCity = newCity;
-    notifyListeners();
-  }
-
-  void updateUserName(String newName) {
-    AuthService.currentUser.fullName = newName;
     notifyListeners();
   }
 
@@ -100,7 +87,7 @@ class ToiProvider with ChangeNotifier {
   Future<void> createAndRefresh({
     required String name,
     required String description,
-    required DateSelectionMode dateMode,
+    required DateSelectionMode dateType,
     required List<EventDateDto> dates,
     required int guestCount,
     required double budget,
@@ -109,7 +96,7 @@ class ToiProvider with ChangeNotifier {
     await EventService().createEvent(
       name: name,
       description: description,
-      dateMode: dateMode,
+      dateMode: dateType,
       dates: dates,
       guestCount: guestCount,
       budget: budget,
@@ -120,30 +107,31 @@ class ToiProvider with ChangeNotifier {
 
   Future<void> addExpenseAndRefresh(int eventId, ExpenseDto expense) async {
     await EventService().addExpense(eventId, expense);
-    await loadDashboard(eventId);
-  }
-/*
-  void deleteExpense(String eventId, String expenseId) {
-    final index = _events.indexWhere((e) => e.id == eventId);
-    if (index == -1) return;
-    final event = _events[index];
-    _events[index] = ToiEvent(
-      id: event.id,
-      userId: event.userId,
-      title: event.title,
-      description: event.description,
-      dateMode: event.dateMode,
-      dates: event.dates,
-      guestCount: event.guestCount,
-      budget: event.budget,
-      imageUrl: event.imageUrl,
-      expenses: event.expenses.where((e) => e.id != expenseId).toList(),
-    );
-    notifyListeners();
+    await updateDashboard(eventId);
   }
 
-  */
+  Future<void> editExpense(int eventId, ExpenseDto expense) async {
+    await EventService().editExpense(eventId, expense);
+    await updateDashboard(eventId);
+  }
 
+  Future<void> deleteExpense(int eventId, ExpenseDto expense) async {
+    await EventService().deleteExpense(eventId, expense);
+    await updateDashboard(eventId);
+  }
+
+  Future<void> updateDashboard(int eventId) async {
+    try {
+      _dashboard = await EventService().getDashboard(eventId);
+    } catch (e) {
+      _dashboardError = e.toString();
+    } finally {
+      _isLoadingDashboard = false;
+      notifyListeners();
+    }
+  }
+
+  /*
   void updateBudgetAndExpenses(
       String eventId, double newBudget, List<ExpenseDto> updatedExpenses) {
     final index = _events.indexWhere((e) => e.id == eventId);
@@ -162,5 +150,5 @@ class ToiProvider with ChangeNotifier {
       expenses: updatedExpenses,
     );
     notifyListeners();
-  }
+  } */
 }

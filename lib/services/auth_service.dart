@@ -7,14 +7,14 @@ class AuthService {
   final _baseUrl = 'https://toibook.up.railway.app/api';
   final _storage = const FlutterSecureStorage();
 
-  // Mock data for now, add actual user fetching logic later
-  static UserModel currentUser = UserModel(
-    id: 'u-001',
-    fullName: 'Alisher Kanatov',
-    email: 'alisher@toibook.kz',
-    phoneNumber: '+7 707 123 45 67',
-    city: 'Astana',
-  );
+    Future<Map<String, String>> get _headers async {
+    final token = await getToken();
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    };
+  }
 
   Future<bool> register(
     String name,
@@ -64,32 +64,20 @@ class AuthService {
 
   Future<String?> getToken() => _storage.read(key: 'jwt');
 
-  Future<void> logout() => _storage.delete(key: 'jwt');
+  Future<void> logout() async {
+    await _storage.delete(key: 'jwt');
+  }
 
-  // also may delete
-  Map<String, dynamic>? decodeToken(String token) {
-    try {
-      final parts = token.split('.');
-      if (parts.length != 3) return null;
+  Future<UserProfile> fetchUserProfile() async {
+    final res = await http.get(
+      Uri.parse('$_baseUrl/users/profile'),
+      headers: await _headers,
+    );
 
-      String normalized = base64Url.normalize(parts[1]);
-      final payload = utf8.decode(base64Url.decode(normalized));
-      return jsonDecode(payload);
-    } catch (e) {
-      return null;
+    if (res.statusCode == 200) {
+      return UserProfile.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to fetch profile: ${res.statusCode}');
     }
-  }
-
-  // here we can only get email. May delete later
-  Future<Map<String, dynamic>?> getCurrentUser() async {
-    final token = await _storage.read(key: 'jwt');
-    if (token == null) return null;
-    return decodeToken(token);
-  }
-
-  // may delete as well
-  Future<bool> isLoggedIn() async {
-    final token = await _storage.read(key: 'jwt');
-    return token != null;
   }
 }
