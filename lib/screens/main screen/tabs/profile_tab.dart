@@ -6,8 +6,8 @@ import 'package:toibook_app/widgets/change_name_dialog.dart';
 import 'package:toibook_app/widgets/city_picker.dart';
 import '../../../providers/toi_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class ProfileTab extends StatelessWidget {
+  const ProfileTab({super.key});
 
   @override
   Widget build(BuildContext context) {

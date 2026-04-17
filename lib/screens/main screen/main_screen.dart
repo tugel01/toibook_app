@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:toibook_app/screens/main%20screen/tabs/explore_tab.dart';
 import 'package:toibook_app/screens/main%20screen/tabs/home_tab.dart';
 import 'package:toibook_app/screens/main%20screen/tabs/profile_tab.dart';
 
@@ -40,8 +41,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final List<Widget> tabs = [
       const HomeTab(),
-      const Center(child: Text("Explore Vendors!")),
-      const ProfileScreen(),
+      const ExploreTab(),
+      const ProfileTab(),
     ];
 
     return Scaffold(
