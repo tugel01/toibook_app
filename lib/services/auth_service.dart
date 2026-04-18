@@ -7,7 +7,7 @@ class AuthService {
   final _baseUrl = 'https://toibook.up.railway.app/api';
   final _storage = const FlutterSecureStorage();
 
-    Future<Map<String, String>> get _headers async {
+  Future<Map<String, String>> get _headers async {
     final token = await getToken();
     return {
       'Content-Type': 'application/json',
@@ -78,6 +78,29 @@ class AuthService {
       return UserProfile.fromJson(jsonDecode(res.body));
     } else {
       throw Exception('Failed to fetch profile: ${res.statusCode}');
+    }
+  }
+
+  Future<void> updateProfile({
+    required String name,
+    required String surname,
+    required City city,
+  }) async {
+    try {
+      final res = await http.patch(
+        Uri.parse('$_baseUrl/users/profile'),
+        headers: await _headers,
+        body: jsonEncode({
+          'name': name,
+          'surname': surname,
+          'city': city.toQueryString(),
+        }),
+      );
+      if (res.statusCode != 200) {
+        throw Exception('Failed to update profile: ${res.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
     }
   }
 }

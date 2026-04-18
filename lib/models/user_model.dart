@@ -1,31 +1,42 @@
-enum UserRole { USER, VENDOR, ADMIN }
+enum UserRole { user, vendor, admin }
 
 enum City {
-  ALMATY,
-  ASTANA,
-  NOT_SELECTED;
+  almaty,
+  astana,
+  notSelected;
 
   static City fromString(String value) {
     switch (value.toUpperCase()) {
       case 'ALMATY':
-        return City.ALMATY;
+        return City.almaty;
       case 'ASTANA':
-        return City.ASTANA;
-      case 'NOT_SELECTED':
-        return City.NOT_SELECTED;
+        return City.astana;
+
       default:
-        return City.ALMATY;
+        return City.notSelected;
     }
   }
 
   String get label {
     switch (this) {
-      case City.ALMATY:
+      case City.almaty:
         return 'Almaty';
-      case City.ASTANA:
+      case City.astana:
         return 'Astana';
-      case City.NOT_SELECTED:
+      case City.notSelected:
         return 'Not selected';
+    }
+  }
+
+  String toQueryString() {
+    switch (this) {
+      case City.almaty:
+        return 'ALMATY';
+      case City.astana:
+        return 'ASTANA';
+
+      case City.notSelected:
+        return 'NOT_SELECTED';
     }
   }
 }
@@ -53,7 +64,8 @@ class UserProfile {
     name: json['name'],
     surname: json['surname'],
     email: json['email'],
-    city: json['city'] != null ? City.values.byName(json['city']) : City.NOT_SELECTED,
-    role: UserRole.values.byName(json['role']),
+    city:
+        json['city'] != null ? City.fromString(json['city']) : City.notSelected,
+    role: UserRole.values.byName(json['role'].toString().toLowerCase()),
   );
 }

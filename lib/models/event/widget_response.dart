@@ -1,5 +1,5 @@
-import 'package:toibook_app/models/budget_response.dart';
-import 'package:toibook_app/models/widget_type.dart';
+import 'package:toibook_app/models/budget/budget_response.dart';
+import 'package:toibook_app/models/event/widget_type.dart';
 
 class WidgetResponse {
   final int id;

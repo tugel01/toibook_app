@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:toibook_app/models/expense_dto.dart';
-import 'package:toibook_app/models/expense_type.dart';
+import 'package:toibook_app/models/budget/expense_dto.dart';
+import 'package:toibook_app/models/budget/expense_type.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:provider/provider.dart';
 

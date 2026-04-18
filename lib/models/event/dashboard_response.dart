@@ -1,5 +1,5 @@
-import 'package:toibook_app/models/widget_response.dart';
-import 'package:toibook_app/models/widget_type.dart';
+import 'package:toibook_app/models/event/widget_response.dart';
+import 'package:toibook_app/models/event/widget_type.dart';
 
 class DashboardResponse {
   final int eventId;

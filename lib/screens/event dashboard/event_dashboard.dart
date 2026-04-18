@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toibook_app/models/event_card_response.dart';
+import 'package:toibook_app/models/event/event_card_response.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:toibook_app/screens/event%20dashboard/tabs/overview_page.dart';
 

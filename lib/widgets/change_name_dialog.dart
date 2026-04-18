@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:toibook_app/models/user_model.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
+import 'package:toibook_app/services/auth_service.dart';
 
 class ChangeNameDialog extends StatefulWidget {
   const ChangeNameDialog({super.key});
@@ -22,9 +24,8 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
   @override
   void initState() {
     super.initState();
-    final provider = context.watch<ToiProvider>();
-    final user = provider.userProfile;
-    _controller = TextEditingController(text: user?.fullname ?? "");
+    final user = context.read<ToiProvider>().userProfile;
+    _controller = TextEditingController(text: user?.fullname ?? '');
   }
 
   @override
@@ -55,20 +56,31 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
           child: const Text("Cancel"),
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             final newName = _controller.text.trim();
-            
-            // TODO: IMPLEMENT CHANGE NAME
+            if (newName.isEmpty) return;
 
+            final parts = newName.split(' ');
+            final name = parts.first;
+            final surname = parts.length > 1 ? parts.sublist(1).join(' ') : '';
 
+            final provider = context.read<ToiProvider>();
+            final city = provider.userProfile?.city ?? City.notSelected;
 
+            Navigator.pop(context);
+
+            try {
+              await AuthService().updateProfile(
+                name: name,
+                surname: surname,
+                city: city,
+              );
+              await provider.loadUserProfile(force: true);
+            } catch (e) {
+              print('Could not update name: $e');
+            }
           },
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text("Save"),
+          child: const Text('Save'),
         ),
       ],
     );

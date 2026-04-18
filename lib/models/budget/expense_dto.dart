@@ -1,4 +1,4 @@
-import 'package:toibook_app/models/expense_type.dart';
+import 'package:toibook_app/models/budget/expense_type.dart';
 
 class ExpenseDto {
   final int? id;

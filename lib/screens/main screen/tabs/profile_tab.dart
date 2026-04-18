@@ -47,7 +47,7 @@ class ProfileTab extends StatelessWidget {
               Icons.person_outline,
               "Full name",
               user?.fullname ?? "",
-              () => ChangeNameDialog.show(context),
+              (() => ChangeNameDialog.show(context)),
             ),
             _buildListTile(
               context,

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:toibook_app/models/dashboard_response.dart';
-import 'package:toibook_app/models/date_selection_mode.dart';
-import 'package:toibook_app/models/event_date_dto.dart';
-import 'package:toibook_app/models/event_card_response.dart';
-import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/event/dashboard_response.dart';
+import 'package:toibook_app/models/event/date_selection_mode.dart';
+import 'package:toibook_app/models/event/event_date_dto.dart';
+import 'package:toibook_app/models/event/event_card_response.dart';
+import 'package:toibook_app/models/budget/expense_dto.dart';
 import 'package:toibook_app/services/auth_service.dart';
 
 class EventService {

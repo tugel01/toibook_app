@@ -1,4 +1,4 @@
-import 'package:toibook_app/models/expense_dto.dart';
+import 'package:toibook_app/models/budget/expense_dto.dart';
 
 class BudgetResponse {
   final int eventId;

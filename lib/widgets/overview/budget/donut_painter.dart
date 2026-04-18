@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:toibook_app/models/expense_type.dart';
+import 'package:toibook_app/models/budget/expense_type.dart';
 
 class DonutExpense {
   final ExpenseType category;
