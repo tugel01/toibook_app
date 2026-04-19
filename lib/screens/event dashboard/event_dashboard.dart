@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:toibook_app/models/event/event_card_response.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:toibook_app/screens/event%20dashboard/tabs/overview_page.dart';
+import 'package:toibook_app/screens/event%20dashboard/tabs/saved_page.dart';
 
 class EventDashboard extends StatefulWidget {
   final EventCardResponse event;
@@ -21,8 +22,6 @@ class _EventDashboardState extends State<EventDashboard> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
-
-    // Trigger the load after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ToiProvider>().loadDashboard(widget.event.id);
     });
@@ -35,9 +34,7 @@ class _EventDashboardState extends State<EventDashboard> {
   }
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -49,7 +46,7 @@ class _EventDashboardState extends State<EventDashboard> {
   Widget build(BuildContext context) {
     final provider = context.watch<ToiProvider>();
 
-    // error screen
+    // Error screen
     if (provider.dashboardError != null) {
       return Scaffold(
         appBar: AppBar(
@@ -66,19 +63,15 @@ class _EventDashboardState extends State<EventDashboard> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 48,
-                color: Theme.of(context).colorScheme.error,
-              ),
+              Icon(Icons.error_outline,
+                  size: 48, color: Theme.of(context).colorScheme.error),
               const SizedBox(height: 16),
               const Text('Could not load dashboard.'),
               const SizedBox(height: 8),
               TextButton(
-                onPressed:
-                    () => context.read<ToiProvider>().loadDashboard(
-                      widget.event.id,
-                    ),
+                onPressed: () => context
+                    .read<ToiProvider>()
+                    .loadDashboard(widget.event.id),
                 child: const Text('Retry'),
               ),
             ],
@@ -87,7 +80,7 @@ class _EventDashboardState extends State<EventDashboard> {
       );
     }
 
-    // loading screen / Shimmer
+    // Loading screen
     if (provider.isLoadingDashboard || provider.dashboard == null) {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -105,22 +98,24 @@ class _EventDashboardState extends State<EventDashboard> {
           child: Center(
             child: Column(
               children: [
-                SizedBox(height: 200),
+                const SizedBox(height: 200),
                 Icon(
                   Icons.celebration,
                   size: 67,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onPrimaryContainer.withValues(alpha: 0.4),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onPrimaryContainer
+                      .withValues(alpha: 0.4),
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  "Dashboard for ${widget.event.name} is loading...",
+                  'Dashboard for ${widget.event.name} is loading...',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onPrimaryContainer.withValues(alpha: 0.9),
-                  ),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onPrimaryContainer
+                            .withValues(alpha: 0.9),
+                      ),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -138,12 +133,11 @@ class _EventDashboardState extends State<EventDashboard> {
       );
     }
 
-    // loaded State
+    // Loaded
     final dashboard = provider.dashboard!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dashboard.name),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -155,15 +149,11 @@ class _EventDashboardState extends State<EventDashboard> {
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onPageChanged: (index) => setState(() => _currentIndex = index),
         children: [
           const OverviewPage(),
-          const Center(child: Text("Saved Items / Vendors")),
-          const Center(child: Text("Chat with Vendors")),
+          SavedPage(eventId: dashboard.eventId),
+          const Center(child: Text('Chat with Vendors')),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -174,10 +164,16 @@ class _EventDashboardState extends State<EventDashboard> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
-            label: "Dashboard",
+            label: 'Dashboard',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Saved"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: "Chat"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bookmark),
+            label: 'Saved',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble),
+            label: 'Chat',
+          ),
         ],
       ),
     );

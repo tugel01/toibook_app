@@ -51,7 +51,7 @@ class AuthService {
         body: jsonEncode({'email': email, 'password': password}),
       );
 
-      if (res.statusCode == 200) {
+      if (res.statusCode == 200 || res.statusCode == 201) {
         final token = jsonDecode(res.body)['token'] as String;
         await _storage.write(key: 'jwt', value: token);
         return true;
@@ -74,7 +74,7 @@ class AuthService {
       headers: await _headers,
     );
 
-    if (res.statusCode == 200) {
+    if (res.statusCode == 200 || res.statusCode == 201) {
       return UserProfile.fromJson(jsonDecode(res.body));
     } else {
       throw Exception('Failed to fetch profile: ${res.statusCode}');
@@ -96,7 +96,7 @@ class AuthService {
           'city': city.toQueryString(),
         }),
       );
-      if (res.statusCode != 200) {
+      if (res.statusCode != 200 && res.statusCode != 201) {
         throw Exception('Failed to update profile: ${res.statusCode}');
       }
     } catch (e) {

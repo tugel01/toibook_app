@@ -64,7 +64,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
     }
   }
 
-  void _showAddToProject(BuildContext context) {
+  void _showAddToEvent(BuildContext context) {
     final events = context.read<ToiProvider>().eventCards;
 
     showModalBottomSheet(
@@ -126,16 +126,11 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                                         Icons.add_circle_outline,
                                       ),
                                       onTap: () {
-                                        Navigator.pop(ctx);
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Added to ${event.name} — sync coming soon',
-                                            ),
-                                          ),
+                                        VendorService().addToEvent(
+                                          widget.offer.id,
+                                          event.id,
                                         );
+                                        Navigator.pop(ctx);
                                       },
                                     );
                                   },
@@ -217,7 +212,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                     width: double.infinity,
                     height: 52,
                     child: FilledButton.icon(
-                      onPressed: () => _showAddToProject(context),
+                      onPressed: () => _showAddToEvent(context),
                       icon: const Icon(Icons.add),
                       label: const Text('Add to my event'),
                     ),

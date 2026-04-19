@@ -3,7 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:toibook_app/models/user_model.dart';
 import 'package:toibook_app/models/vendors/enums.dart';
 import 'package:toibook_app/models/vendors/full_offer.dart';
+import 'package:toibook_app/models/vendors/saved_offer_card.dart';
 import 'package:toibook_app/models/vendors/short_offer.dart';
+import 'package:toibook_app/models/vendors/ticket.dart';
 import 'package:toibook_app/services/auth_service.dart';
 
 class VendorService {
@@ -76,6 +78,102 @@ class VendorService {
         return OfferDetailResponse.fromJson(jsonDecode(res.body));
       }
       throw Exception('Failed to load offer: ${res.statusCode}');
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> addToEvent(int offerId, int eventId) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$_baseUrl/offers/$offerId'),
+        headers: await _headers,
+        body: jsonEncode({'eventId': eventId}),
+      );
+      print(
+        "$_baseUrl/offers/$offerId with eventId $eventId: ${res.statusCode} ${res.body}",
+      );
+
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        throw Exception('Failed to add to event: ${res.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<List<SavedOfferCardResponse>> getSavedOffers({
+    required int eventId,
+    required VendorType vendorType,
+  }) async {
+    try {
+      final res = await http.get(
+        Uri.parse(
+          '$_baseUrl/events/$eventId/saved/${vendorType.toQueryString()}',
+        ),
+        headers: await _headers,
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final List<dynamic> body = jsonDecode(res.body);
+        return body.map((e) => SavedOfferCardResponse.fromJson(e)).toList();
+      }
+      if (res.statusCode == 404) return [];
+      throw Exception('Failed to load saved offers: ${res.statusCode}');
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> sendRequest({
+    required int eventId,
+    required int ticketId,
+    required int offerId,
+    required String message,
+  }) async {
+    try {
+      final res = await http.put(
+        Uri.parse('$_baseUrl/events/$eventId/tickets/$ticketId'),
+        headers: await _headers,
+        body: jsonEncode({'offerId': offerId, 'messageToVendor': message}),
+      );
+
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        throw Exception('Failed to send request: ${res.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<List<TicketCardResponse>> getTickets(int eventId) async {
+    try {
+      final res = await http.get(
+        Uri.parse('$_baseUrl/events/$eventId/tickets'),
+        headers: await _headers,
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final List<dynamic> body = jsonDecode(res.body);
+        return body.map((e) => TicketCardResponse.fromJson(e)).toList();
+      }
+      if (res.statusCode == 404) return [];
+      throw Exception('Failed to load tickets: ${res.statusCode}');
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> deleteSavedOffer(int eventId, int ticketId) async {
+    try {
+      final res = await http.delete(
+        Uri.parse('$_baseUrl/events/$eventId/tickets/$ticketId'),
+        headers: await _headers,
+      );
+
+      if (res.statusCode != 200 && res.statusCode != 204) {
+        throw Exception('Failed to delete saved offer: ${res.statusCode}');
+      }
     } catch (e) {
       throw Exception('Network error: $e');
     }

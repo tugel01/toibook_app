@@ -9,7 +9,7 @@ class OfferResponse {
   final String name;
   final City city;
   final String? coverImageUrl;
-  final String createdAt;
+  final String? createdAt;
   OfferResponse({
     required this.id,
     required this.vendorType,
@@ -17,7 +17,7 @@ class OfferResponse {
     this.serviceType,
     required this.name,
     required this.city,
-    required this.createdAt,
+    this.createdAt,
     this.coverImageUrl,
   });
 

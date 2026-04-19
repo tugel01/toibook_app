@@ -118,10 +118,8 @@ class OfferImage {
 
   OfferImage({required this.imageUrl, required this.isCover});
 
-  factory OfferImage.fromJson(Map<String, dynamic> json) => OfferImage(
-        imageUrl: json['imageUrl'],
-        isCover: json['isCover'],
-      );
+  factory OfferImage.fromJson(Map<String, dynamic> json) =>
+      OfferImage(imageUrl: json['imageUrl'], isCover: json['isCover']);
 }
 
 enum ContactType {
@@ -131,14 +129,17 @@ enum ContactType {
 
   static ContactType fromString(String value) {
     switch (value.toUpperCase()) {
-      case 'PHONE': return ContactType.phone;
-      case 'INSTAGRAM': return ContactType.instagram;
-      case 'TELEGRAM': return ContactType.telegram;
-      default: throw Exception('Unknown contact type: $value');
+      case 'PHONE':
+        return ContactType.phone;
+      case 'INSTAGRAM':
+        return ContactType.instagram;
+      case 'TELEGRAM':
+        return ContactType.telegram;
+      default:
+        throw Exception('Unknown contact type: $value');
     }
   }
 }
-
 
 class ContactEntry {
   final ContactType contactType;
@@ -147,9 +148,9 @@ class ContactEntry {
   ContactEntry({required this.contactType, required this.contactInfo});
 
   factory ContactEntry.fromJson(Map<String, dynamic> json) => ContactEntry(
-        contactType: ContactType.fromString(json['contactType']),
-        contactInfo: json['contactInfo'],
-      );
+    contactType: ContactType.fromString(json['contactType']),
+    contactInfo: json['contactInfo'],
+  );
 }
 
 class DetailsResponse {
@@ -163,12 +164,59 @@ class DetailsResponse {
     required this.data,
   });
 
-  factory DetailsResponse.fromJson(Map<String, dynamic> json) =>
-      DetailsResponse(
-        id: json['id'],
-        detailsType: json['detailsType'],
-        data: (json['data'] as List)
-            .map((e) => ContactEntry.fromJson(e))
-            .toList(),
-      );
+  factory DetailsResponse.fromJson(
+    Map<String, dynamic> json,
+  ) => DetailsResponse(
+    id: json['id'],
+    detailsType: json['detailsType'],
+    data: (json['data'] as List).map((e) => ContactEntry.fromJson(e)).toList(),
+  );
+}
+
+enum OfferStatus {
+  created,
+  pending,
+  active,
+  disabled;
+
+  String get label {
+    switch (this) {
+      case OfferStatus.created:
+        return 'Created';
+      case OfferStatus.pending:
+        return 'Pending';
+      case OfferStatus.active:
+        return 'Active';
+      case OfferStatus.disabled:
+        return 'Disabled';
+    }
+  }
+
+  static OfferStatus fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'CREATED':
+        return OfferStatus.created;
+      case 'PENDING':
+        return OfferStatus.pending;
+      case 'ACTIVE':
+        return OfferStatus.active;
+      case 'DISABLED':
+        return OfferStatus.disabled;
+      default:
+        throw Exception('Unknown offer status: $value');
+    }
+  }
+
+  String toQueryString() {
+    switch (this) {
+      case OfferStatus.created:
+        return 'CREATED';
+      case OfferStatus.pending:
+        return 'PENDING';
+      case OfferStatus.active:
+        return 'ACTIVE';
+      case OfferStatus.disabled:
+        return 'DISABLED';
+    }
+  }
 }

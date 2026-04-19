@@ -94,7 +94,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
     if (picked != null) setState(() => _rangeEnd = picked);
   }
 
-  // For multiple mode — add a single day entry
+  // For multiple mode, add a single day entry
   Future<void> _addSingleDayEntry() async {
     final picked = await showDatePicker(
       context: context,
@@ -108,7 +108,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
     }
   }
 
-  // For multiple mode — add a range entry via bottom sheet
+  // For multiple mode, add a range entry via bottom sheet
   Future<void> _addRangeEntry() async {
     DateTime? start;
     DateTime? end;
