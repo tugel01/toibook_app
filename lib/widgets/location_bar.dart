@@ -12,11 +12,15 @@ class LocationBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
-            offset: const Offset(0, 5),
+            offset: const Offset(0, 4),
           ),
         ],
       ),

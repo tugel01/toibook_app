@@ -530,7 +530,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed:
                       _isLoading
                           ? null

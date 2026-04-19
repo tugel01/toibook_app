@@ -123,17 +123,17 @@ class _ExploreTabState extends State<ExploreTab> {
     _fetchFeed();
   }
 
-@override
-Widget build(BuildContext context) {
-  final provider = context.watch<ToiProvider>();
-  final currentCity = provider.userProfile?.city;
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<ToiProvider>();
+    final currentCity = provider.userProfile?.city;
 
-  if (currentCity != _lastCity) {
-    _lastCity = currentCity;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _fetchFeed();
-    });
-  }
+    if (currentCity != _lastCity) {
+      _lastCity = currentCity;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _fetchFeed();
+      });
+    }
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,6 +144,13 @@ Widget build(BuildContext context) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 LocationBar(location: currentCity?.label ?? 'Select City'),
+                const SizedBox(height: 32),
+                Text(
+                  'Explore Vendors',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 16),
 
                 // Search bar
@@ -230,6 +237,7 @@ Widget build(BuildContext context) {
                 ),
                 const SizedBox(height: 12),
                 const Divider(),
+                const SizedBox(height: 12),
 
                 // Filter chips
                 if (_activeTab == _ExploreTab.places)
@@ -270,14 +278,7 @@ Widget build(BuildContext context) {
                     ),
                   ),
 
-                const SizedBox(height: 16),
 
-                Text(
-                  'Explore Vendors',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
                 const SizedBox(height: 16),
               ],
             ),

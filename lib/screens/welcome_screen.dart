@@ -49,7 +49,7 @@ class WelcomeScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
@@ -83,7 +83,6 @@ class WelcomeScreen extends StatelessWidget {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
                       ),
                     ),
                   ),

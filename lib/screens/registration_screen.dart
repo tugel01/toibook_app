@@ -156,7 +156,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _handleRegister();

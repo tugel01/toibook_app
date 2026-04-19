@@ -67,9 +67,10 @@ class ProfileTab extends StatelessWidget {
               value: provider.isDarkMode,
               onChanged: (val) => provider.toggleTheme(),
             ),
+            const SizedBox(height: 16),
 
             const Divider(),
-
+            const SizedBox(height: 16),
             // Logout
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

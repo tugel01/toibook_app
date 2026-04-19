@@ -5,6 +5,7 @@ import 'package:toibook_app/screens/event%20dashboard/event_dashboard.dart';
 import 'package:toibook_app/widgets/add_event_card.dart';
 import 'package:toibook_app/widgets/city_picker.dart';
 import 'package:toibook_app/widgets/event_card.dart';
+import 'package:toibook_app/widgets/location_bar.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -35,7 +36,7 @@ class _HomeTabState extends State<HomeTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildLocationBar(context, currentCity),
+            LocationBar(location: currentCity),
             const SizedBox(height: 32),
             Text(
               'My events',
@@ -102,63 +103,4 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  Widget _buildLocationBar(BuildContext context, String currentCity) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Expanded(
-              child: InkWell(
-                onTap: () => CityPicker.show(context),
-                borderRadius: BorderRadius.circular(30),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 22),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Current Location",
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                          Text(
-                            currentCity,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.notifications_none_outlined),
-              onPressed: () => print("Notifications tapped"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

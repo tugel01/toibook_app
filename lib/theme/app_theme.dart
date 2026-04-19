@@ -1,169 +1,139 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-/// The [AppTheme] defines light and dark themes for the app.
-///
-/// Theme setup for FlexColorScheme package v8.
-/// Use same major flex_color_scheme package version. If you use a
-/// lower minor version, some properties may not be supported.
-/// In that case, remove them after copying this theme to your
-/// app or upgrade the package to version 8.4.0.
-///
-/// Use it in a [MaterialApp] like this:
-///
-/// MaterialApp(
-///   theme: AppTheme.light,
-///   darkTheme: AppTheme.dark,
-/// );
+
 abstract final class AppTheme {
-  // The FlexColorScheme defined light mode ThemeData.
-  static ThemeData light = FlexThemeData.light(
-    // Using FlexColorScheme built-in FlexScheme enum based colors
-    scheme: FlexScheme.sepia,
-    // Input color modifiers.
-    swapLegacyOnMaterial3: true,
-    // Surface color adjustments.
-    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-    blendLevel: 20,
-    // Convenience direct styling properties.
-    appBarStyle: FlexAppBarStyle.background,
-    bottomAppBarElevation: 1.0,
-    // Component theme configurations for light mode.
-    subThemesData: const FlexSubThemesData(
-      interactionEffects: true,
-      tintedDisabledControls: true,
-      blendOnLevel: 20,
-      blendOnColors: true,
-      useM2StyleDividerInM3: true,
-      thickBorderWidth: 2.0,
-      defaultRadius: 16.0,
-      elevatedButtonSchemeColor: SchemeColor.onPrimaryContainer,
-      elevatedButtonSecondarySchemeColor: SchemeColor.primaryContainer,
-      outlinedButtonOutlineSchemeColor: SchemeColor.primary,
-      toggleButtonsBorderSchemeColor: SchemeColor.primary,
-      segmentedButtonSchemeColor: SchemeColor.primary,
-      segmentedButtonBorderSchemeColor: SchemeColor.primary,
-      unselectedToggleIsColored: true,
-      sliderValueTinted: true,
-      inputDecoratorSchemeColor: SchemeColor.primary,
-      inputDecoratorIsFilled: true,
-      inputDecoratorBackgroundAlpha: 15,
-      inputDecoratorBorderType: FlexInputBorderType.outline,
-      inputDecoratorRadius: 14.0,
-      inputDecoratorUnfocusedHasBorder: false,
-      inputDecoratorFocusedBorderWidth: 1.0,
-      inputDecoratorPrefixIconSchemeColor: SchemeColor.primary,
-      chipRadius: 10.0,
-      popupMenuRadius: 6.0,
-      popupMenuElevation: 6.0,
-      alignedDropdown: true,
-      appBarScrolledUnderElevation: 8.0,
-      drawerWidth: 280.0,
-      drawerIndicatorSchemeColor: SchemeColor.primary,
-      bottomNavigationBarMutedUnselectedLabel: false,
-      bottomNavigationBarMutedUnselectedIcon: false,
-      menuRadius: 6.0,
-      menuElevation: 6.0,
-      menuBarRadius: 0.0,
-      menuBarElevation: 1.0,
-      searchBarElevation: 1.0,
-      searchViewElevation: 1.0,
-      searchUseGlobalShape: true,
-      navigationBarSelectedLabelSchemeColor: SchemeColor.primary,
-      navigationBarSelectedIconSchemeColor: SchemeColor.onPrimary,
-      navigationBarIndicatorSchemeColor: SchemeColor.primary,
-      navigationBarElevation: 2.0,
-      navigationBarHeight: 70.0,
-      navigationRailSelectedLabelSchemeColor: SchemeColor.primary,
-      navigationRailSelectedIconSchemeColor: SchemeColor.onPrimary,
-      navigationRailUseIndicator: true,
-      navigationRailIndicatorSchemeColor: SchemeColor.primary,
-      navigationRailIndicatorOpacity: 1.00,
+  static ThemeData light = ThemeData(
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFF2A8B8B),
+      brightness: Brightness.light,
+    ).copyWith(
+      primary: const Color(0xFF2A8B8B),
+      onPrimary: Colors.white,
+      secondary: const Color(0xFFD4A843),
+      onSecondary: Colors.white,
+      tertiary: const Color(0xFFD4A843),
     ),
-    // ColorScheme seed generation configuration for light mode.
-    keyColors: const FlexKeyColors(
-      useTertiary: true,
-      keepPrimary: true,
-      keepTertiary: true,
+    fontFamily: 'SF Pro Display',
+    appBarTheme: const AppBarTheme(
+      centerTitle: true,
+      elevation: 0,
+      scrolledUnderElevation: 0,
     ),
-    tones: FlexSchemeVariant.chroma
-        .tones(Brightness.light),
-    // Direct ThemeData properties.
-    visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF2A8B8B), width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      elevation: 0,
+      selectedItemColor: Color(0xFF2A8B8B),
+    ),
+    dividerTheme: const DividerThemeData(space: 1, thickness: 1),
   );
 
-  // The FlexColorScheme defined dark mode ThemeData.
-  static ThemeData dark = FlexThemeData.dark(
-    // Using FlexColorScheme built-in FlexScheme enum based colors.
-    scheme: FlexScheme.sepia,
-    // Input color modifiers.
-    swapLegacyOnMaterial3: true,
-    // Surface color adjustments.
-    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-    blendLevel: 30,
-    // Convenience direct styling properties.
-    appBarStyle: FlexAppBarStyle.background,
-    bottomAppBarElevation: 2.0,
-    // Component theme configurations for dark mode.
-    subThemesData: const FlexSubThemesData(
-      interactionEffects: true,
-      tintedDisabledControls: true,
-      blendOnLevel: 40,
-      blendOnColors: true,
-      useM2StyleDividerInM3: true,
-      defaultRadius: 16.0,
-      thickBorderWidth: 2.0,
-      elevatedButtonSchemeColor: SchemeColor.onPrimaryContainer,
-      elevatedButtonSecondarySchemeColor: SchemeColor.primaryContainer,
-      outlinedButtonOutlineSchemeColor: SchemeColor.primary,
-      toggleButtonsBorderSchemeColor: SchemeColor.primary,
-      segmentedButtonSchemeColor: SchemeColor.primary,
-      segmentedButtonBorderSchemeColor: SchemeColor.primary,
-      unselectedToggleIsColored: true,
-      sliderValueTinted: true,
-      inputDecoratorSchemeColor: SchemeColor.primary,
-      inputDecoratorIsFilled: true,
-      inputDecoratorBackgroundAlpha: 37,
-      inputDecoratorBorderType: FlexInputBorderType.outline,
-      inputDecoratorRadius: 14.0,
-      inputDecoratorUnfocusedHasBorder: false,
-      inputDecoratorFocusedBorderWidth: 1.0,
-      chipRadius: 10.0,
-      popupMenuRadius: 6.0,
-      popupMenuElevation: 6.0,
-      alignedDropdown: true,
-      drawerWidth: 280.0,
-      drawerIndicatorSchemeColor: SchemeColor.primary,
-      bottomNavigationBarMutedUnselectedLabel: false,
-      bottomNavigationBarMutedUnselectedIcon: false,
-      menuRadius: 6.0,
-      menuElevation: 6.0,
-      menuBarRadius: 0.0,
-      menuBarElevation: 1.0,
-      searchBarElevation: 1.0,
-      searchViewElevation: 1.0,
-      searchUseGlobalShape: true,
-      navigationBarSelectedLabelSchemeColor: SchemeColor.primary,
-      navigationBarSelectedIconSchemeColor: SchemeColor.onPrimary,
-      navigationBarIndicatorSchemeColor: SchemeColor.primary,
-      navigationBarElevation: 2.0,
-      navigationBarHeight: 70.0,
-      navigationRailSelectedLabelSchemeColor: SchemeColor.primary,
-      navigationRailSelectedIconSchemeColor: SchemeColor.onPrimary,
-      navigationRailUseIndicator: true,
-      navigationRailIndicatorSchemeColor: SchemeColor.primary,
-      navigationRailIndicatorOpacity: 1.00,
+  static ThemeData dark = ThemeData(
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFF2A8B8B),
+      brightness: Brightness.dark,
+    ).copyWith(
+      primary: const Color(0xFF3AABAB),
+      onPrimary: Colors.white,
+      secondary: const Color(0xFFE8BC57),
+      onSecondary: Colors.black,
+      tertiary: const Color(0xFFE8BC57),
     ),
-    // ColorScheme seed configuration setup for dark mode.
-    keyColors: const FlexKeyColors(
-      useTertiary: true,
-      keepPrimary: true,
+    fontFamily: 'SF Pro Display',
+    appBarTheme: const AppBarTheme(
+      centerTitle: true,
+      elevation: 0,
+      scrolledUnderElevation: 0,
     ),
-    tones: FlexSchemeVariant.chroma
-        .tones(Brightness.dark),
-    // Direct ThemeData properties.
-    visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF3AABAB), width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      elevation: 0,
+      selectedItemColor: Color(0xFF3AABAB),
+    ),
+    dividerTheme: const DividerThemeData(space: 1, thickness: 1),
   );
 }
