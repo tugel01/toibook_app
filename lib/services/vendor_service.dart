@@ -27,11 +27,15 @@ class VendorService {
     String? query,
     int page = 0,
     int size = 10,
+    String? sortBy,
+    String? sortDirection,
   }) async {
     try {
-      final params = <String, String>{
+      final params = <String, String?>{
         'page': page.toString(),
         'size': size.toString(),
+        'sortBy': sortBy,
+        'sortDirection': sortDirection,
       };
 
       if (vendorType != null) params['vendorType'] = vendorType.toQueryString();
@@ -54,6 +58,7 @@ class VendorService {
         return content.map((e) => OfferResponse.fromJson(e)).toList();
       }
       if (res.statusCode == 404) return [];
+
       throw Exception('Failed to load feed: ${res.statusCode}');
     } catch (e) {
       throw Exception('Network error: $e');

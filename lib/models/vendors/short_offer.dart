@@ -9,7 +9,7 @@ class OfferResponse {
   final String name;
   final City city;
   final String? coverImageUrl;
-
+  final String createdAt;
   OfferResponse({
     required this.id,
     required this.vendorType,
@@ -17,6 +17,7 @@ class OfferResponse {
     this.serviceType,
     required this.name,
     required this.city,
+    required this.createdAt,
     this.coverImageUrl,
   });
 
@@ -34,5 +35,6 @@ class OfferResponse {
     name: json['name'],
     city: City.fromString(json['city']),
     coverImageUrl: json['coverImageUrl'],
+    createdAt: json['createdAt'],
   );
 }

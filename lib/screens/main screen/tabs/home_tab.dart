@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:toibook_app/screens/event%20dashboard/event_dashboard.dart';
 import 'package:toibook_app/widgets/add_event_card.dart';
-import 'package:toibook_app/widgets/city_picker.dart';
 import 'package:toibook_app/widgets/event_card.dart';
 import 'package:toibook_app/widgets/location_bar.dart';
 

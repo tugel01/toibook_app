@@ -34,7 +34,7 @@ class ExploreVendorCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.primaryContainer.withOpacity(0.5),
+                ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                 image:
                     offer.coverImageUrl != null
                         ? DecorationImage(

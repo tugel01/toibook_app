@@ -22,21 +22,26 @@ class ExploreTab extends StatefulWidget {
 class _ExploreTabState extends State<ExploreTab> {
   City? _lastCity;
   final _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
 
   _ExploreTab _activeTab = _ExploreTab.top;
   VenueType? _selectedVenueType;
   ServiceType? _selectedServiceType;
 
+  String _sortDirection = 'desc';
+
   List<OfferResponse> _results = [];
   bool _isLoading = false;
   String? _error;
+  bool _showBackToTopButton = false;
 
   @override
   void initState() {
     super.initState();
     _fetchFeed();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
@@ -44,7 +49,25 @@ class _ExploreTabState extends State<ExploreTab> {
     _debounce?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset >= 300 && !_showBackToTopButton) {
+      setState(() => _showBackToTopButton = true);
+    } else if (_scrollController.offset < 300 && _showBackToTopButton) {
+      setState(() => _showBackToTopButton = false);
+    }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _onSearchChanged() {
@@ -61,6 +84,13 @@ class _ExploreTabState extends State<ExploreTab> {
     } catch (_) {
       return null;
     }
+  }
+
+  void _toggleSort() {
+    setState(() {
+      _sortDirection = _sortDirection == 'desc' ? 'asc' : 'desc';
+    });
+    _fetchFeed();
   }
 
   Future<void> _fetchFeed() async {
@@ -87,6 +117,8 @@ class _ExploreTabState extends State<ExploreTab> {
             _searchController.text.trim().isEmpty
                 ? null
                 : _searchController.text.trim(),
+        sortBy: 'createdAt',
+        sortDirection: _sortDirection,
       );
 
       if (!mounted) return;
@@ -134,62 +166,71 @@ class _ExploreTabState extends State<ExploreTab> {
         if (mounted) _fetchFeed();
       });
     }
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                LocationBar(location: currentCity?.label ?? 'Select City'),
-                const SizedBox(height: 32),
-                Text(
-                  'Explore Vendors',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
+    
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: _showBackToTopButton
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              mini: true,
+              child: const Icon(Icons.arrow_upward),
+            )
+          : null,
+      body: SafeArea(
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LocationBar(location: currentCity?.label ?? 'Select City'),
+                    const SizedBox(height: 32),
+                    Text(
+                      'Explore Vendors',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
 
-                // Search bar
-                TextField(
-                  controller: _searchController,
-                  textInputAction: TextInputAction.search,
-                  onSubmitted: (_) => _fetchFeed(),
-                  decoration: InputDecoration(
-                    hintText: 'Search vendors, venues...',
-                    prefixIcon: const Icon(Icons.search_outlined),
-                    suffixIcon:
-                        _searchController.text.isNotEmpty
+                    // Search bar
+                    TextField(
+                      controller: _searchController,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (_) => _fetchFeed(),
+                      decoration: InputDecoration(
+                        hintText: 'Search vendors, venues...',
+                        prefixIcon: const Icon(Icons.search_outlined),
+                        suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                _searchController.clear();
-                                _fetchFeed();
-                              },
-                            )
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  _fetchFeed();
+                                },
+                              )
                             : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 20,
+                        ),
+                      ),
                     ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 20,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                // Tab selector
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children:
-                      _ExploreTab.values.map((tab) {
+                    // Tab selector
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _ExploreTab.values.map((tab) {
                         final isActive = _activeTab == tab;
                         final label = switch (tab) {
                           _ExploreTab.top => 'Top',
@@ -207,45 +248,38 @@ class _ExploreTabState extends State<ExploreTab> {
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                color:
-                                    isActive
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .surfaceContainerHighest
-                                            .withValues(alpha: 0.5),
+                                color: isActive
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest
+                                        .withValues(alpha: 0.5),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               child: Text(
                                 label,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color:
-                                      isActive
-                                          ? Theme.of(
-                                            context,
-                                          ).colorScheme.onPrimary
-                                          : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
+                                  color: isActive
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ),
                           ),
                         );
                       }).toList(),
-                ),
-                const SizedBox(height: 12),
-                const Divider(),
-                const SizedBox(height: 12),
+                    ),
+                    const SizedBox(height: 12),
+                    const Divider(),
+                    const SizedBox(height: 12),
 
-                // Filter chips
-                if (_activeTab == _ExploreTab.places)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children:
-                          VenueType.values.map((type) {
+                    // Filter chips
+                    if (_activeTab == _ExploreTab.places)
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: VenueType.values.map((type) {
                             final selected = _selectedVenueType == type;
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
@@ -256,15 +290,14 @@ class _ExploreTabState extends State<ExploreTab> {
                               ),
                             );
                           }).toList(),
-                    ),
-                  ),
+                        ),
+                      ),
 
-                if (_activeTab == _ExploreTab.people)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children:
-                          ServiceType.values.map((type) {
+                    if (_activeTab == _ExploreTab.people)
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: ServiceType.values.map((type) {
                             final selected = _selectedServiceType == type;
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
@@ -275,64 +308,101 @@ class _ExploreTabState extends State<ExploreTab> {
                               ),
                             );
                           }).toList(),
-                    ),
-                  ),
-
-
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-
-          // Results
-          Expanded(
-            child:
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _error != null
-                    ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('Could not load vendors.'),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: _fetchFeed,
-                            child: const Text('Retry'),
-                          ),
-                        ],
+                        ),
                       ),
-                    )
-                    : _results.isEmpty
-                    ? const Center(child: Text('No vendors found.'))
-                    : GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.75,
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton.icon(
+                          onPressed: _toggleSort,
+                          icon: Icon(
+                            _sortDirection == 'asc'
+                                ? Icons.arrow_downward
+                                : Icons.arrow_upward,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                      itemCount: _results.length,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap:
-                              () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => VendorProfileScreen(
-                                        offer: _results[index],
-                                      ),
-                                ),
-                              ),
-                          child: ExploreVendorCard(offer: _results[index]),
-                        );
-                      },
+                          label: Text(
+                            _sortDirection == 'desc'
+                                ? 'Oldest first'
+                                : 'Newest first',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 0,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                      ],
                     ),
-          ),
-        ],
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+
+            if (_isLoading)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_error != null)
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Could not load vendors.'),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: _fetchFeed,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else if (_results.isEmpty)
+              const SliverFillRemaining(
+                child: Center(child: Text('No vendors found.')),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.75,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VendorProfileScreen(
+                              offer: _results[index],
+                            ),
+                          ),
+                        ),
+                        child: ExploreVendorCard(offer: _results[index]),
+                      );
+                    },
+                    childCount: _results.length,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

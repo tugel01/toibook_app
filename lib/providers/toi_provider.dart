@@ -33,11 +33,8 @@ class ToiProvider with ChangeNotifier {
 
   Future<void> loadUserProfile({bool force = false}) async {
     if (_userProfile != null && !force) return;
-    print('loadUserProfile called, force: $force');
     final profile = await AuthService().fetchUserProfile();
-    print(
-      'fetched profile: ${profile?.name} ${profile?.surname} ${profile?.city}',
-    );
+
     _userProfile = profile;
     notifyListeners();
   }

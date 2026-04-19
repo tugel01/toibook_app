@@ -59,65 +59,92 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
         break;
     }
     final uri = Uri.parse(url);
-    if (  await canLaunchUrl(uri)) {
+    if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
   void _showAddToProject(BuildContext context) {
     final events = context.read<ToiProvider>().eventCards;
+
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Add to Project',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            if (events.isEmpty)
-              const Center(child: Text('No events yet. Create one first.'))
-            else
-              ...events.map(
-                (event) => ListTile(
-                  leading: const Icon(Icons.celebration_outlined),
-                  title: Text(event.name),
-                  trailing: const Icon(Icons.add_circle_outline),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Added to ${event.name} — sync coming soon'),
+      builder:
+          (ctx) => DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.6,
+            maxChildSize: 0.7,
+            expand: false,
+            builder:
+                (_, scrollController) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
-                    );
-                  },
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Add to my event',
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child:
+                            events.isEmpty
+                                ? const Center(
+                                  child: Text(
+                                    'No events yet. Create one first.',
+                                  ),
+                                )
+                                : ListView.builder(
+                                  controller: scrollController,
+                                  itemCount: events.length,
+                                  itemBuilder: (context, index) {
+                                    final event = events[index];
+                                    return ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: const Icon(
+                                        Icons.celebration_outlined,
+                                      ),
+                                      title: Text(event.name),
+                                      trailing: const Icon(
+                                        Icons.add_circle_outline,
+                                      ),
+                                      onTap: () {
+                                        Navigator.pop(ctx);
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Added to ${event.name} — sync coming soon',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -162,47 +189,50 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
               ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Could not load vendor.'),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: _loadOffer,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Could not load vendor.'),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: _loadOffer,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
               : _buildContent(),
-      bottomNavigationBar: _offer == null
-          ? null
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: FilledButton.icon(
-                    onPressed: () => _showAddToProject(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add to Project'),
+      bottomNavigationBar:
+          _offer == null
+              ? null
+              : SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: FilledButton.icon(
+                      onPressed: () => _showAddToProject(context),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add to my event'),
+                    ),
                   ),
                 ),
               ),
-            ),
     );
   }
 
   Widget _buildContent() {
     final offer = _offer!;
-    final typeLabel = offer.vendorType == VendorType.venue
-        ? offer.venueType?.label ?? ''
-        : offer.serviceType?.label ?? '';
+    final typeLabel =
+        offer.vendorType == VendorType.venue
+            ? offer.venueType?.label ?? ''
+            : offer.serviceType?.label ?? '';
 
     return SingleChildScrollView(
       child: Column(
@@ -213,21 +243,26 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
             height: 260,
             width: double.infinity,
             color: Theme.of(context).colorScheme.primaryContainer,
-            child: offer.coverImage != null
-                ? Image.network(
-                    offer.coverImage!.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Icon(
+            child:
+                offer.coverImage != null
+                    ? Image.network(
+                      offer.coverImage!.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder:
+                          (_, _, _) => Icon(
+                            Icons.image_outlined,
+                            size: 60,
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                          ),
+                    )
+                    : Icon(
                       Icons.image_outlined,
                       size: 60,
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
-                  )
-                : Icon(
-                    Icons.image_outlined,
-                    size: 60,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
           ),
 
           Padding(
@@ -240,35 +275,36 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                   Text(
                     typeLabel.toUpperCase(),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.1,
-                        ),
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
                   ),
                 const SizedBox(height: 4),
 
                 // Name
                 Text(
                   offer.displayName,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
 
                 // City
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.outline),
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       offer.city.label,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
                   ],
                 ),
@@ -285,10 +321,9 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                 if (offer.portfolioImages.isNotEmpty) ...[
                   Text(
                     'Portfolio',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
@@ -296,7 +331,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: offer.portfolioImages.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      separatorBuilder: (_, _) => const SizedBox(width: 12),
                       itemBuilder: (context, index) {
                         final img = offer.portfolioImages[index];
                         return ClipRRect(
@@ -306,14 +341,16 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                             width: 120,
                             height: 120,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              width: 120,
-                              height: 120,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
-                              child: const Icon(Icons.image_outlined),
-                            ),
+                            errorBuilder:
+                                (_, _, _) => Container(
+                                  width: 120,
+                                  height: 120,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
+                                  child: const Icon(Icons.image_outlined),
+                                ),
                           ),
                         );
                       },
@@ -326,10 +363,9 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                 if (offer.contacts.isNotEmpty) ...[
                   Text(
                     'Contacts',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ...offer.contacts.map(
@@ -339,10 +375,9 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primaryContainer
-                              .withOpacity(0.5),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -357,8 +392,11 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                       ),
                       subtitle: Text(contact.contactInfo),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                      onTap: () =>
-                          _launchContact(contact.contactInfo, contact.contactType),
+                      onTap:
+                          () => _launchContact(
+                            contact.contactInfo,
+                            contact.contactType,
+                          ),
                     ),
                   ),
                 ],

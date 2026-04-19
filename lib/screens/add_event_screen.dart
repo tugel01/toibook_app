@@ -50,8 +50,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
       source: ImageSource.gallery,
       imageQuality: 80,
     );
-    if (pickedFile != null)
+    if (pickedFile != null) {
       setState(() => _selectedImage = File(pickedFile.path));
+    }
   }
 
   Future<void> _pickSingleDate() async {
