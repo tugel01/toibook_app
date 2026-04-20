@@ -137,6 +137,7 @@ class _ExploreTabState extends State<ExploreTab> {
       _activeTab = tab;
       _selectedVenueType = null;
       _selectedServiceType = null;
+      if (tab == _ExploreTab.top) _sortDirection = 'desc'; // reset
     });
     _fetchFeed();
   }
@@ -347,39 +348,39 @@ class _ExploreTabState extends State<ExploreTab> {
                               }).toList(),
                         ),
                       ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton.icon(
-                          onPressed: _toggleSort,
-                          icon: Icon(
-                            _sortDirection == 'asc'
-                                ? Icons.arrow_downward
-                                : Icons.arrow_upward,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          label: Text(
-                            _sortDirection == 'desc'
-                                ? 'Oldest first'
-                                : 'Newest first',
-                            style: TextStyle(
+                    if (!(_activeTab == _ExploreTab.top))
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton.icon(
+                            onPressed: _toggleSort,
+                            icon: Icon(
+                              _sortDirection == 'asc'
+                                  ? Icons.arrow_downward
+                                  : Icons.arrow_upward,
+                              size: 16,
                               color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.w600,
+                            ),
+                            label: Text(
+                              _sortDirection == 'desc'
+                                  ? 'Oldest first'
+                                  : 'Newest first',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 0,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 0,
-                            ),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     const SizedBox(height: 16),
                   ],
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toibook_app/screens/login_screen.dart';
+import 'package:toibook_app/screens/main%20screen/favorites_screen.dart';
 import 'package:toibook_app/services/auth_service.dart';
 import 'package:toibook_app/widgets/change_name_dialog.dart';
 import 'package:toibook_app/widgets/city_picker.dart';
@@ -56,6 +57,19 @@ class ProfileTab extends StatelessWidget {
               user?.city?.label ?? "",
               (() => CityPicker.show(context)),
             ),
+            const Divider(),
+            _buildSectionHeader(context, "My Favorites"),
+            _buildListTile(
+              context,
+              Icons.favorite_border,
+              "Saved vendors",
+              "View all your favorited offers",
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+              ),
+            ),
+            const Divider(),
 
             _buildSectionHeader(context, "Preferences"),
 

@@ -10,6 +10,7 @@ class OfferResponse {
   final City city;
   final String? coverImageUrl;
   final String? createdAt;
+  
   OfferResponse({
     required this.id,
     required this.vendorType,

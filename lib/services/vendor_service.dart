@@ -90,9 +90,6 @@ class VendorService {
         headers: await _headers,
         body: jsonEncode({'eventId': eventId}),
       );
-      print(
-        "$_baseUrl/offers/$offerId with eventId $eventId: ${res.statusCode} ${res.body}",
-      );
 
       if (res.statusCode != 200 && res.statusCode != 201) {
         throw Exception('Failed to add to event: ${res.statusCode}');
@@ -174,6 +171,38 @@ class VendorService {
       if (res.statusCode != 200 && res.statusCode != 204) {
         throw Exception('Failed to delete saved offer: ${res.statusCode}');
       }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<void> addOrRemoveFromFavorites(int offerId) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$_baseUrl/offers/$offerId/favorite'),
+        headers: await _headers,
+      );
+
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        throw Exception('Failed to add to favorites: ${res.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<List<OfferResponse>> getFavorites() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$_baseUrl/favorites'),
+        headers: await _headers,
+      );
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final List<dynamic> body = jsonDecode(res.body);
+        return body.map((e) => OfferResponse.fromJson(e)).toList();
+      }
+      if (res.statusCode == 404) return [];
+      throw Exception('Failed to load favorites: ${res.statusCode}');
     } catch (e) {
       throw Exception('Network error: $e');
     }

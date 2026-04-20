@@ -22,6 +22,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
   bool _isLoading = true;
   String? _error;
   bool _isFavorite = false;
+  bool _isFavoriteLoading = false;
 
   @override
   void initState() {
@@ -31,9 +32,19 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
 
   Future<void> _loadOffer() async {
     try {
-      final offer = await VendorService().getOffer(widget.offer.id);
+      final results = await Future.wait([
+        VendorService().getOffer(widget.offer.id),
+        VendorService().getFavorites(),
+      ]);
+
       if (!mounted) return;
-      setState(() => _offer = offer);
+      final offer = results[0] as OfferDetailResponse;
+      final favorites = results[1] as List<OfferResponse>;
+
+      setState(() {
+        _offer = offer;
+        _isFavorite = favorites.any((f) => f.id == widget.offer.id);
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e.toString());
@@ -165,6 +176,23 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
     }
   }
 
+  Future<void> _toggleFavorite() async {
+    setState(() => _isFavoriteLoading = true);
+    try {
+      await VendorService().addOrRemoveFromFavorites(widget.offer.id);
+      if (!mounted) return;
+      setState(() => _isFavorite = !_isFavorite);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not update favorites')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isFavoriteLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,11 +204,18 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorite ? Colors.red : null,
-            ),
-            onPressed: () => setState(() => _isFavorite = !_isFavorite),
+            icon:
+                _isFavoriteLoading
+                    ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : Icon(
+                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: _isFavorite ? Colors.red : null,
+                    ),
+            onPressed: _isFavoriteLoading ? null : _toggleFavorite,
           ),
         ],
       ),
