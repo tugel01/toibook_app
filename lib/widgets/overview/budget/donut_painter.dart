@@ -13,11 +13,13 @@ class DonutPainter extends CustomPainter {
   final List<DonutExpense> expenses;
   final int totalBudget;
   final Map<ExpenseType, Color> categoryColors;
+  final Color backgroundColor;
 
   DonutPainter({
     required this.expenses,
     required this.totalBudget,
     required this.categoryColors,
+    required this.backgroundColor,
   });
 
   @override
@@ -36,7 +38,7 @@ class DonutPainter extends CustomPainter {
       ..strokeCap = StrokeCap.butt;
 
     // Background ring
-    paint.color = Colors.grey[200]!;
+    paint.color = backgroundColor;
     canvas.drawCircle(center, radius - strokeWidth / 2, paint);
 
     if (totalBudget <= 0 || expenses.isEmpty) return;

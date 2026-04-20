@@ -3,6 +3,7 @@ import 'package:toibook_app/models/vendors/enums.dart';
 import 'package:toibook_app/models/vendors/short_offer.dart';
 
 class SavedOfferCardResponse {
+  final int vendorId;
   final int ticketId;
   final int id;
   final VendorType vendorType;
@@ -14,6 +15,7 @@ class SavedOfferCardResponse {
   final String? coverImageUrl;
 
   SavedOfferCardResponse({
+    required this.vendorId,
     required this.ticketId,
     required this.id,
     required this.vendorType,
@@ -29,6 +31,7 @@ class SavedOfferCardResponse {
 
   factory SavedOfferCardResponse.fromJson(Map<String, dynamic> json) =>
       SavedOfferCardResponse(
+        vendorId: json['vendorId'],
         ticketId: json['ticketId'],
         id: json['id'],
         vendorType: VendorType.fromString(json['vendorType']),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:toibook_app/models/event/dashboard_response.dart';
 import 'package:toibook_app/models/event/date_selection_mode.dart';
 import 'package:toibook_app/models/event/event_card_response.dart';
@@ -47,10 +48,20 @@ class ToiProvider with ChangeNotifier {
   // theme
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode;
+  final _storage = const FlutterSecureStorage();
 
-  void toggleTheme() {
+  Future<void> loadTheme() async {
+    String? saved = await _storage.read(key: 'isDarkMode');
+    if (saved != null) {
+      _isDarkMode = saved == 'true';
+      notifyListeners();
+    }
+  }
+
+  void toggleTheme() async {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
+    await _storage.write(key: 'isDarkMode', value: _isDarkMode.toString());
   }
 
   // Load events from backend

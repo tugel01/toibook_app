@@ -166,16 +166,17 @@ class _ExploreTabState extends State<ExploreTab> {
         if (mounted) _fetchFeed();
       });
     }
-    
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: _showBackToTopButton
-          ? FloatingActionButton(
-              onPressed: _scrollToTop,
-              mini: true,
-              child: const Icon(Icons.arrow_upward),
-            )
-          : null,
+      floatingActionButton:
+          _showBackToTopButton
+              ? FloatingActionButton(
+                onPressed: _scrollToTop,
+                mini: true,
+                child: const Icon(Icons.arrow_upward),
+              )
+              : null,
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
@@ -190,9 +191,8 @@ class _ExploreTabState extends State<ExploreTab> {
                     const SizedBox(height: 32),
                     Text(
                       'Explore Vendors',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
 
@@ -204,15 +204,16 @@ class _ExploreTabState extends State<ExploreTab> {
                       decoration: InputDecoration(
                         hintText: 'Search vendors, venues...',
                         prefixIcon: const Icon(Icons.search_outlined),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  _fetchFeed();
-                                },
-                              )
-                            : null,
+                        suffixIcon:
+                            _searchController.text.isNotEmpty
+                                ? IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _fetchFeed();
+                                  },
+                                )
+                                : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
@@ -228,47 +229,79 @@ class _ExploreTabState extends State<ExploreTab> {
                     const SizedBox(height: 16),
 
                     // Tab selector
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: _ExploreTab.values.map((tab) {
-                        final isActive = _activeTab == tab;
-                        final label = switch (tab) {
-                          _ExploreTab.top => 'Top',
-                          _ExploreTab.places => 'Places',
-                          _ExploreTab.people => 'People',
-                        };
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: GestureDetector(
-                            onTap: () => _onTabChanged(tab),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isActive
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest
-                                        .withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: Text(
-                                label,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isActive
-                                      ? Theme.of(context).colorScheme.onPrimary
-                                      : Theme.of(context).colorScheme.onSurface,
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest
+                            .withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        children:
+                            _ExploreTab.values.map((tab) {
+                              final isActive = _activeTab == tab;
+                              final label = switch (tab) {
+                                _ExploreTab.top => 'Top',
+                                _ExploreTab.places => 'Places',
+                                _ExploreTab.people => 'People',
+                              };
+
+                              return Expanded(
+                                child: GestureDetector(
+                                  onTap: () => _onTabChanged(tab),
+                                  behavior: HitTestBehavior.opaque,
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          isActive
+                                              ? Theme.of(
+                                                context,
+                                              ).colorScheme.surface
+                                              : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(26),
+                                      boxShadow:
+                                          isActive
+                                              ? [
+                                                BoxShadow(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .shadow
+                                                      .withValues(alpha: 0.1),
+                                                  blurRadius: 4,
+                                                  offset: const Offset(0, 1),
+                                                ),
+                                              ]
+                                              : [],
+                                    ),
+                                    child: Text(
+                                      label,
+                                      style: TextStyle(
+                                        fontWeight:
+                                            isActive
+                                                ? FontWeight.bold
+                                                : FontWeight.w500,
+                                        color:
+                                            isActive
+                                                ? Theme.of(
+                                                  context,
+                                                ).colorScheme.primary
+                                                : Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                              );
+                            }).toList(),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     const Divider(),
@@ -279,17 +312,19 @@ class _ExploreTabState extends State<ExploreTab> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: VenueType.values.map((type) {
-                            final selected = _selectedVenueType == type;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: FilterChip(
-                                label: Text(type.label),
-                                selected: selected,
-                                onSelected: (_) => _onVenueTypeSelected(type),
-                              ),
-                            );
-                          }).toList(),
+                          children:
+                              VenueType.values.map((type) {
+                                final selected = _selectedVenueType == type;
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: FilterChip(
+                                    label: Text(type.label),
+                                    selected: selected,
+                                    onSelected:
+                                        (_) => _onVenueTypeSelected(type),
+                                  ),
+                                );
+                              }).toList(),
                         ),
                       ),
 
@@ -297,17 +332,19 @@ class _ExploreTabState extends State<ExploreTab> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: ServiceType.values.map((type) {
-                            final selected = _selectedServiceType == type;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: FilterChip(
-                                label: Text(type.label),
-                                selected: selected,
-                                onSelected: (_) => _onServiceTypeSelected(type),
-                              ),
-                            );
-                          }).toList(),
+                          children:
+                              ServiceType.values.map((type) {
+                                final selected = _selectedServiceType == type;
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: FilterChip(
+                                    label: Text(type.label),
+                                    selected: selected,
+                                    onSelected:
+                                        (_) => _onServiceTypeSelected(type),
+                                  ),
+                                );
+                              }).toList(),
                         ),
                       ),
 
@@ -383,22 +420,21 @@ class _ExploreTabState extends State<ExploreTab> {
                     mainAxisSpacing: 16,
                     childAspectRatio: 0.75,
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VendorProfileScreen(
-                              offer: _results[index],
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return GestureDetector(
+                      onTap:
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => VendorProfileScreen(
+                                    offer: _results[index],
+                                  ),
                             ),
                           ),
-                        ),
-                        child: ExploreVendorCard(offer: _results[index]),
-                      );
-                    },
-                    childCount: _results.length,
-                  ),
+                      child: ExploreVendorCard(offer: _results[index]),
+                    );
+                  }, childCount: _results.length),
                 ),
               ),
           ],

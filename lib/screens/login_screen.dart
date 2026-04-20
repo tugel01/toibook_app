@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:toibook_app/providers/chat_provider.dart';
+import 'package:toibook_app/providers/toi_provider.dart';
 import 'package:toibook_app/screens/main%20screen/main_screen.dart';
 import 'package:toibook_app/screens/registration_screen.dart';
 import 'package:toibook_app/services/auth_service.dart';
@@ -14,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _isLoading = false; 
+  bool _isLoading = false;
   bool _obscurePassword = true;
 
   @override
@@ -23,38 +26,47 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-  
-void _handleLogin() async {
-  setState(() => _isLoading = true);
 
-  try {
-    final success = await AuthService().login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+  void _handleLogin() async {
+    setState(() => _isLoading = true);
 
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (success) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-        (route) => false,
+    try {
+      final success = await AuthService().login(
+        _emailController.text.trim(),
+        _passwordController.text,
       );
-    } else {
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      if (success) {
+        await context.read<ToiProvider>().loadUserProfile(force: true);
+
+        if (!mounted) return;
+
+        final userId = context.read<ToiProvider>().userProfile?.id;
+        if (userId != null) {
+          context.read<ChatProvider>().init(userId);
+        }
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid email or password")),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid email or password")),
+        SnackBar(content: Text("Something went wrong: ${e.toString()}")),
       );
     }
-  } catch (e) {
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Something went wrong: ${e.toString()}")),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +80,14 @@ void _handleLogin() async {
             children: [
               Text(
                 "Welcome!",
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               const Text("Please enter your details to continue."),
               const SizedBox(height: 32),
-        
+
               // Email Field
               TextFormField(
                 controller: _emailController,
@@ -86,7 +98,7 @@ void _handleLogin() async {
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
-        
+
               // Password Field
               TextFormField(
                 controller: _passwordController,
@@ -95,31 +107,28 @@ void _handleLogin() async {
                   labelText: "Password",
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword 
-                        ? Icons.visibility_off_outlined 
-                        : Icons.visibility_outlined,
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                ),
                 ),
               ),
-        
+
               const SizedBox(height: 32),
-        
+
               // Login Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : _handleLogin,
+                  onPressed: _isLoading ? null : _handleLogin,
                   child:
                       _isLoading
                           ? const SizedBox(
@@ -130,7 +139,7 @@ void _handleLogin() async {
                           : const Text("Login"),
                 ),
               ),
-        
+
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

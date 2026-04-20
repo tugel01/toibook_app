@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:toibook_app/models/vendors/enums.dart';
 import 'package:toibook_app/models/vendors/saved_offer_card.dart';
 import 'package:toibook_app/models/vendors/ticket.dart';
-import 'package:toibook_app/screens/vendor_profile_screen.dart';
+import 'package:toibook_app/providers/chat_provider.dart';
+import 'package:toibook_app/screens/event%20dashboard/chat_screen.dart';
 import 'package:toibook_app/services/vendor_service.dart';
 import 'package:toibook_app/widgets/saved_offer_card.dart';
 
@@ -151,14 +153,33 @@ class _SavedPageState extends State<SavedPage> {
                             offerId: offer.id,
                             message: message,
                           );
+
+                          // Create conversation with vendor
+
+                          final conversationId = await context
+                              .read<ChatProvider>()
+                              .getOrCreateConversation(offer.vendorId);
+
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Request sent to ${offer.name}!'),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
+
+                          // Auto-send message
+                          await context.read<ChatProvider>().sendMessage(
+                            conversationId,
+                            'Request for offer: ${offer.name}\nMessage: $message',
+                          );
+
+                          // Navigate to chat
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => ChatScreen(
+                                    conversationId: conversationId,
+                                    vendorName: offer.name,
+                                  ),
                             ),
                           );
+
                           _fetchAll();
                         } catch (e) {
                           if (!context.mounted) return;
@@ -343,8 +364,30 @@ class _SavedPageState extends State<SavedPage> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: GestureDetector(
-                              onTap: () {
-                                print('Tapped contacted offer: ${offer.name}');
+                              onTap: () async {
+                                try {
+                                  final conversationId = await context
+                                      .read<ChatProvider>()
+                                      .getOrCreateConversation(offer.vendorId);
+                                  if (!context.mounted) return;
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => ChatScreen(
+                                            conversationId: conversationId,
+                                            vendorName: offer.name,
+                                          ),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Could not open chat: $e'),
+                                    ),
+                                  );
+                                }
                               },
                               child: SavedOfferCard(
                                 offer: offer,

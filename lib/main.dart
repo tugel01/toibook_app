@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:toibook_app/providers/chat_provider.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
+import 'package:toibook_app/screens/main%20screen/main_screen.dart';
 import 'package:toibook_app/screens/welcome_screen.dart';
 import 'package:toibook_app/theme/app_theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  const storage = FlutterSecureStorage();
+  String? loggedIn = await storage.read(key: 'isLoggedIn');
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ToiProvider()),
+        ChangeNotifierProvider(create: (_) => ToiProvider()..loadTheme()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
-      child: const MyApp(),
+      child: MyApp(isLoggedIn: loggedIn == 'true'),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +32,11 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: context.watch<ToiProvider>().isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: const WelcomeScreen(),
+      themeMode:
+          context.watch<ToiProvider>().isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
+      home: isLoggedIn ? const MainScreen() : const WelcomeScreen(),
     );
   }
 }

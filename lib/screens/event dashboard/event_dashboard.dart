@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toibook_app/models/event/event_card_response.dart';
 import 'package:toibook_app/providers/toi_provider.dart';
+import 'package:toibook_app/screens/event%20dashboard/tabs/chat_list_page.dart';
 import 'package:toibook_app/screens/event%20dashboard/tabs/overview_page.dart';
 import 'package:toibook_app/screens/event%20dashboard/tabs/saved_page.dart';
 
@@ -63,15 +64,19 @@ class _EventDashboardState extends State<EventDashboard> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline,
-                  size: 48, color: Theme.of(context).colorScheme.error),
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Theme.of(context).colorScheme.error,
+              ),
               const SizedBox(height: 16),
               const Text('Could not load dashboard.'),
               const SizedBox(height: 8),
               TextButton(
-                onPressed: () => context
-                    .read<ToiProvider>()
-                    .loadDashboard(widget.event.id),
+                onPressed:
+                    () => context.read<ToiProvider>().loadDashboard(
+                      widget.event.id,
+                    ),
                 child: const Text('Retry'),
               ),
             ],
@@ -83,9 +88,9 @@ class _EventDashboardState extends State<EventDashboard> {
     // Loading screen
     if (provider.isLoadingDashboard || provider.dashboard == null) {
       return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           automaticallyImplyLeading: false,
           actions: [
             IconButton(
@@ -99,23 +104,23 @@ class _EventDashboardState extends State<EventDashboard> {
             child: Column(
               children: [
                 const SizedBox(height: 200),
-                Icon(
-                  Icons.celebration,
-                  size: 67,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onPrimaryContainer
-                      .withValues(alpha: 0.4),
+                Center(
+                  child: Image.asset(
+                    'assets/logo_no_background.png',
+                    width: 150,
+                    height: 150,
+                    fit:
+                        BoxFit
+                            .contain,
+                  ),
                 ),
-                const SizedBox(height: 32),
                 Text(
                   'Dashboard for ${widget.event.name} is loading...',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onPrimaryContainer
-                            .withValues(alpha: 0.9),
-                      ),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimaryContainer.withValues(alpha: 0.9),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -153,7 +158,7 @@ class _EventDashboardState extends State<EventDashboard> {
         children: [
           const OverviewPage(),
           SavedPage(eventId: dashboard.eventId),
-          const Center(child: Text('Chat with Vendors')),
+          const ChatListScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -163,15 +168,15 @@ class _EventDashboardState extends State<EventDashboard> {
         onTap: _onTabTapped,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
+            icon: Icon(Icons.dashboard_customize_outlined),
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
+            icon: Icon(Icons.bookmark_border),
             label: 'Saved',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble),
+            icon: Icon(Icons.chat_bubble_outline),
             label: 'Chat',
           ),
         ],

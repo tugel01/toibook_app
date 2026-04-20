@@ -19,9 +19,9 @@ class OverviewBudgetWidget extends StatelessWidget {
   });
 
   static const _categoryColors = {
-    ExpenseType.decor: Color(0xFF1B4332),
-    ExpenseType.venue: Color(0xFF8B6914),
-    ExpenseType.music: Color(0xFFD4A017),
+    ExpenseType.decor: Color.fromARGB(255, 70, 128, 157),
+    ExpenseType.venue: Color.fromARGB(255, 232, 109, 52),
+    ExpenseType.music: Color.fromARGB(255, 219, 172, 54),
     ExpenseType.food: Color(0xFF8BC34A),
     ExpenseType.other: Color(0xFFB0BEC5),
   };
@@ -163,6 +163,10 @@ class OverviewBudgetWidget extends StatelessWidget {
 
                     totalBudget: totalBudget,
                     categoryColors: _categoryColors,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.3),
                   ),
                 ),
                 Column(

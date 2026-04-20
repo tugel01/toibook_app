@@ -54,6 +54,7 @@ class AuthService {
       if (res.statusCode == 200 || res.statusCode == 201) {
         final token = jsonDecode(res.body)['token'] as String;
         await _storage.write(key: 'jwt', value: token);
+        await _storage.write(key: 'isLoggedIn', value: 'true');
         return true;
       }
       return false; // wrong credentials
@@ -66,6 +67,7 @@ class AuthService {
 
   Future<void> logout() async {
     await _storage.delete(key: 'jwt');
+    await _storage.delete(key: 'isLoggedIn');
   }
 
   Future<UserProfile> fetchUserProfile() async {
