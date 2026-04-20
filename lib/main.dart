@@ -10,7 +10,14 @@ import 'package:toibook_app/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   const storage = FlutterSecureStorage();
-  String? loggedIn = await storage.read(key: 'isLoggedIn');
+
+  String? loggedIn;
+  try {
+    loggedIn = await storage.read(key: 'isLoggedIn');
+  } catch (e) {
+    loggedIn = 'false';
+  }
+
   runApp(
     MultiProvider(
       providers: [

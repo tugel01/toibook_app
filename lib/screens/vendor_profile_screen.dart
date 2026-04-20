@@ -68,6 +68,9 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
         final handle = info.replaceAll('@', '');
         url = 'https://t.me/$handle';
         break;
+      case ContactType.website:
+        url = info.startsWith('http') ? info : 'https://$info';
+        break;
     }
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -162,6 +165,8 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
         return Icons.camera_alt_outlined;
       case ContactType.telegram:
         return Icons.send_outlined;
+      case ContactType.website:
+        return Icons.language_outlined;
     }
   }
 
@@ -171,6 +176,8 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
         return 'Phone';
       case ContactType.instagram:
         return 'Instagram';
+      case ContactType.website:
+        return 'Website';
       case ContactType.telegram:
         return 'Telegram';
     }
@@ -228,6 +235,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text('Could not load vendor.'),
+                    Text(_error!),
                     const SizedBox(height: 8),
                     TextButton(
                       onPressed: _loadOffer,

@@ -6,12 +6,14 @@ class DashboardResponse {
   final String name;
   final String description;
   final List<WidgetResponse> widgetResponses;
+  final String? coverImageUrl;
 
   DashboardResponse({
     required this.eventId,
     required this.name,
     required this.description,
     required this.widgetResponses,
+    this.coverImageUrl,
   });
 
   factory DashboardResponse.fromJson(Map<String, dynamic> json) =>
@@ -23,6 +25,7 @@ class DashboardResponse {
             (json['widgetResponses'] as List)
                 .map((w) => WidgetResponse.fromJson(w))
                 .toList(),
+        coverImageUrl: json['coverImageUrl'],
       );
 
   WidgetResponse? get guestCountWidget =>

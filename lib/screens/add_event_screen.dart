@@ -29,12 +29,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
 
-  // Multiple — each entry is (startDate, endDate, isSingleDay)
+  // Multiple: each entry is (startDate, endDate)
   final List<({DateTime start, DateTime end})> _multipleDates = [];
 
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
+
   bool _isLoading = false;
+  _SubmitStep _submitStep = _SubmitStep.idle;
 
   @override
   void dispose() {
@@ -94,7 +96,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
     if (picked != null) setState(() => _rangeEnd = picked);
   }
 
-  // For multiple mode, add a single day entry
   Future<void> _addSingleDayEntry() async {
     final picked = await showDatePicker(
       context: context,
@@ -108,7 +109,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
     }
   }
 
-  // For multiple mode, add a range entry via bottom sheet
   Future<void> _addRangeEntry() async {
     DateTime? start;
     DateTime? end;
@@ -161,9 +161,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                           );
-                          if (picked != null) {
+                          if (picked != null)
                             setModalState(() => start = picked);
-                          }
                         },
                         child: InputDecorator(
                           decoration: const InputDecoration(
@@ -193,9 +192,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                     ),
                                     lastDate: DateTime(2100),
                                   );
-                                  if (picked != null) {
+                                  if (picked != null)
                                     setModalState(() => end = picked);
-                                  }
                                 },
                         child: InputDecorator(
                           decoration: InputDecoration(
@@ -275,6 +273,69 @@ class _AddEventScreenState extends State<AddEventScreen> {
     return '${_formatDate(entry.start)} — ${_formatDate(entry.end)}';
   }
 
+  String get _loadingLabel {
+    switch (_submitStep) {
+      case _SubmitStep.creatingEvent:
+        return 'Creating event…';
+      case _SubmitStep.uploadingImage:
+        return 'Uploading image…';
+      default:
+        return '';
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!_isDateValid()) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a date')));
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _submitStep = _SubmitStep.creatingEvent;
+    });
+
+    try {
+      final createdEvent = await context.read<ToiProvider>().createEvent(
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+        dateType: _dateMode,
+        dates: _buildDates(),
+        guestCount: int.parse(_guestController.text),
+        budget: double.parse(_budgetController.text),
+      );
+
+      if (_selectedImage != null) {
+        setState(() => _submitStep = _SubmitStep.uploadingImage);
+
+        await context.read<ToiProvider>().uploadCoverImage(
+          eventId: createdEvent.id,
+          imageFile: _selectedImage!,
+        );
+      }
+
+      await context.read<ToiProvider>().refresh();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Something went wrong: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _submitStep = _SubmitStep.idle;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -286,9 +347,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image upload
               GestureDetector(
-                onTap: _pickImage,
+                onTap: _isLoading ? null : _pickImage,
                 child: Container(
                   height: 180,
                   width: double.infinity,
@@ -332,7 +392,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Name
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Event Name *'),
@@ -344,7 +403,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Description
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
@@ -360,7 +418,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Date section
               Text(
                 'Event Date *',
                 style: Theme.of(
@@ -489,7 +546,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
               const SizedBox(height: 24),
 
-              // Guests + Budget
               Row(
                 children: [
                   Expanded(
@@ -527,65 +583,27 @@ class _AddEventScreenState extends State<AddEventScreen> {
               ),
               const SizedBox(height: 40),
 
-              // Submit
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : () async {
-                            if (!_formKey.currentState!.validate()) return;
-                            if (!_isDateValid()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please select a date'),
-                                ),
-                              );
-                              return;
-                            }
-
-                            setState(() => _isLoading = true);
-
-                            try {
-                              await context
-                                  .read<ToiProvider>()
-                                  .createAndRefresh(
-                                    name: _nameController.text.trim(),
-                                    description:
-                                        _descriptionController.text.trim(),
-                                    dateType: _dateMode,
-                                    dates: _buildDates(),
-                                    guestCount: int.parse(
-                                      _guestController.text,
-                                    ),
-                                    budget: double.parse(
-                                      _budgetController.text,
-                                    ),
-                                    coverImageUrl: null,
-                                  );
-                              if (!mounted) return;
-                              Navigator.pop(context);
-                            } catch (e) {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Something went wrong: ${e.toString()}',
-                                  ),
-                                ),
-                              );
-                            } finally {
-                              if (mounted) setState(() => _isLoading = false);
-                            }
-                          },
+                  onPressed: _isLoading ? null : _submit,
                   child:
                       _isLoading
-                          ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(_loadingLabel),
+                            ],
                           )
                           : const Text('Create Event'),
                 ),
@@ -597,3 +615,5 @@ class _AddEventScreenState extends State<AddEventScreen> {
     );
   }
 }
+
+enum _SubmitStep { idle, creatingEvent, uploadingImage }

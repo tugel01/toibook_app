@@ -8,7 +8,6 @@ import 'package:toibook_app/widgets/overview/overview_info_card.dart';
 class OverviewPage extends StatelessWidget {
   const OverviewPage({super.key});
 
-
   int _daysLeft(String dateString) {
     try {
       final parts = dateString.split('-');
@@ -40,16 +39,32 @@ class OverviewPage extends StatelessWidget {
     final countdownDate = countdownWidget?.countdown;
     final budgetData = budgetWidget?.budget;
 
+    final ImageProvider? imageProvider =
+        dashboard.coverImageUrl != null ? NetworkImage(dashboard.coverImageUrl!) : null;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image header
           Container(
-            height: 220,
+            height: 267,
             width: double.infinity,
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: const Icon(Icons.celebration, size: 60),
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .primaryContainer
+                  .withValues(alpha: 0.5),
+              image: imageProvider != null
+                  ? DecorationImage(
+                      image: imageProvider, fit: BoxFit.cover)
+                  : null,
+            ),
+            child: imageProvider == null
+                ? Icon(Icons.celebration_outlined,
+                    size: 40,
+                    color: Theme.of(context).colorScheme.primary)
+                : null,
           ),
 
           Padding(

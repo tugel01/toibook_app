@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:toibook_app/models/event/dashboard_response.dart';
 import 'package:toibook_app/models/event/date_selection_mode.dart';
 import 'package:toibook_app/models/event/event_date_dto.dart';
 import 'package:toibook_app/models/event/event_card_response.dart';
 import 'package:toibook_app/models/budget/expense_dto.dart';
+import 'package:toibook_app/models/event/event_response.dart';
 import 'package:toibook_app/services/auth_service.dart';
 
 class EventService {
@@ -19,6 +21,8 @@ class EventService {
       'Accept': 'application/json',
     };
   }
+
+  Future<String?> get _token async => _authService.getToken();
 
   Future<List<EventCardResponse>> getEvents() async {
     try {
@@ -54,14 +58,13 @@ class EventService {
     }
   }
 
-  Future<void> createEvent({
+  Future<EventResponse> createEvent({
     required String name,
     required String description,
     required DateSelectionMode dateMode,
     required List<EventDateDto> dates,
     required int guestCount,
     required double budget,
-    String? coverImageUrl,
   }) async {
     try {
       final body = {
@@ -71,7 +74,6 @@ class EventService {
         'dates': dates.map((d) => d.toJson()).toList(),
         'guestCount': guestCount,
         'budget': budget.toInt(),
-        if (coverImageUrl != null) 'coverImageUrl': coverImageUrl,
       };
 
       final res = await http.post(
@@ -80,9 +82,47 @@ class EventService {
         body: jsonEncode(body),
       );
 
-      if (res.statusCode != 200 && res.statusCode != 201) {
-        throw Exception('Failed to create event: ${res.statusCode}');
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        print('Event created successfully: ${res.body}');
+        return EventResponse.fromJson(jsonDecode(res.body));
       }
+      print('Failed to create event: ${res.statusCode} - ${res.body}');
+
+      throw Exception('Failed to create event: ${res.statusCode}');
+    } catch (e) {
+      print('Network error while creating event: $e');
+      throw Exception('Network error: $e');
+    }
+  }
+
+  Future<EventResponse> uploadCoverImage({
+    required int eventId,
+    required File imageFile,
+  }) async {
+    try {
+      final token = await _token;
+
+      final request =
+          http.MultipartRequest(
+              'POST',
+              Uri.parse('$_baseUrl/events/$eventId/cover-image'),
+            )
+            ..headers.addAll({
+              'Authorization': 'Bearer $token',
+              'Accept': 'application/json',
+            })
+            ..files.add(
+              await http.MultipartFile.fromPath('file', imageFile.path),
+            );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return EventResponse.fromJson(jsonDecode(response.body));
+      }
+      print('Failed to upload cover image: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to upload cover image: ${response.statusCode}');
     } catch (e) {
       throw Exception('Network error: $e');
     }

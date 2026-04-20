@@ -125,6 +125,7 @@ class OfferImage {
 enum ContactType {
   phone,
   instagram,
+  website,
   telegram;
 
   static ContactType fromString(String value) {
@@ -135,6 +136,8 @@ enum ContactType {
         return ContactType.instagram;
       case 'TELEGRAM':
         return ContactType.telegram;
+      case 'WEBSITE':
+        return ContactType.website;
       default:
         throw Exception('Unknown contact type: $value');
     }
